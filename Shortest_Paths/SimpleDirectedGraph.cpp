@@ -5,59 +5,8 @@
 #define PROTECTED
 
 namespace ShortestPaths {
-	/*Abstract Base Class Implementention */
-	/*Vertex*/
-	//SimpleDirectedGraph::Vertex::Vertex(const string i_IdStr)
-	//{
-	//	size_t pos;
-	//	try
-	//	{ // Converting string to int. In a case of invalid argumant exception will be throwen
-	//		m_Id = stoi(i_IdStr,&pos);
-	//		if (pos != i_IdStr.length()) // Unconverted non-numeric charecters remain
-	//			throw invalid_argument("Invalid argument - Input contain non-numeric char.");
-	//	}
-	//	catch (invalid_argument)
-	//	{
-	//		throw;
-	//	}
-	//	if (m_Id < 0)
-	//		throw SimDirGraphExceptions("Invalid argument - negative vertex ID");
-	//}
-	PUBLIC SimpleDirectedGraph::Vertex::Vertex()
-	{
-		static int currentId = 0;
-		m_Id = currentId;
-		currentId++;
-	}
-	PUBLIC void SimpleDirectedGraph::AddEdge(string i_uStr, string i_vStr, string i_WeightStr) 
-	{
-		int weight;
-		try 
-		{ // Converting string to int. In a case of invalid argumant exception will be throwen
-			size_t pos;
-			weight = stoi(i_WeightStr,&pos);
-			if (pos != i_WeightStr.length())
-				throw invalid_argument("Invalid argument - Input contain non-numeric charecters.");
-		}
-		catch (invalid_argument)
-		{
-			throw SimDirGraphExceptions("Invalid argument - Input contain non-numeric charecters.");
-		}
-		Vertex u = i_uStr; // implicit convert
-		Vertex v = i_vStr; // implicit convert
-
-		if (u >= m_NumOfVertex || v >= m_NumOfVertex)
-			throw SimDirGraphExceptions("Vertex doesn't exist");
-		if (u == v)
-			throw SimDirGraphExceptions("Self-loop");
-		if (weight < 0)
-			throw SimDirGraphExceptions("Negative weight");
-
-		AddEdge(u, v, weight); //Calling virtual function AddEdge of relevant data structure graph
-	}
-
-
-	/*Adjacency Matrix Graph Implementation*/
+		
+	/**** Adjacency Matrix Graph Implementation ****/
 	PUBLIC AdjacencyMatrix::~AdjacencyMatrix()
 	{
 		if (m_VertexArr != nullptr)
@@ -99,39 +48,166 @@ namespace ShortestPaths {
 
 		m_VertexArr = new Vertex[m_NumOfVertex]; // Creating array of vertex - each vertex will get ID according to position in the array.
 	}
-	PUBLIC VIRTUAL bool AdjacencyMatrix::IsAdjacent(const Vertex& i_u, const Vertex& i_v)
+	PUBLIC VIRTUAL bool AdjacencyMatrix::IsAdjacent(const int i_u, const int i_v)
 	{
+		if (i_u < 0 || i_u >= m_NumOfVertex || i_v < 0 || i_v >= m_NumOfVertex)
+		{
+			throw SimDirGraphExceptions("Invalid argument - Vertex ID doesn't exist.");
+		}
+
 		return (m_GraphMatrix[i_u][i_v] == nullptr ? false : true);
 	}
-	PUBLIC VIRTUAL list<const SimpleDirectedGraph::Vertex*>* AdjacencyMatrix::GetAdjList(const Vertex& i_u)
+	PUBLIC VIRTUAL list<const SimpleDirectedGraph::Vertex*>* AdjacencyMatrix::GetAdjList(const int i_u)
 	{
+		if (i_u < 0 || i_u >= m_NumOfVertex)
+		{
+			throw SimDirGraphExceptions("Invalid argument - Vertex ID doesn't exist.");
+		}
+
 		list<const Vertex*>* adjList = new list<const Vertex*>;
 		for (int j = 0; j < m_NumOfVertex; j++) {
 			Edge* currentEdge = m_GraphMatrix[i_u][j];
 			if (currentEdge != nullptr) // If the edge exist
 			{
-				adjList->push_back(new Vertex(currentEdge->getTo())); // Adding vertex to list
+				adjList->push_back(&(currentEdge->getTo())); // Adding vertex to list
 			}
 		}
 
 		return adjList;
 	}
-	PRIVATE VIRTUAL void AdjacencyMatrix::AddEdge(const Vertex& i_u, const Vertex& i_v, const int i_Weight)
+	PUBLIC VIRTUAL void AdjacencyMatrix::AddEdge(const int i_u, const int i_v, const int i_Weight)
 	{
-		if (m_GraphMatrix[i_u][i_v] != nullptr)
-			throw SimDirGraphExceptions("Parallel edge");
+		if (i_u < 0 || i_u >= m_NumOfVertex || i_v < 0 || i_v >= m_NumOfVertex)
+			throw SimDirGraphExceptions("Invalid argument - Vertex ID doesn't exist.");
 
-		m_GraphMatrix[i_u][i_v] = new Edge(i_u, i_v, i_Weight);
+		if (m_GraphMatrix[i_u][i_v] != nullptr)
+			throw SimDirGraphExceptions("Parallel edge doesn't allowed");
+
+		if (!m_AllowNegativeWeight && i_Weight < 0)
+			throw SimDirGraphExceptions("Negative weight doesn't allowed");
+
+		m_GraphMatrix[i_u][i_v] = new Edge(m_VertexArr[i_u], m_VertexArr[i_v], i_Weight);
 	}
-	PUBLIC VIRTUAL void AdjacencyMatrix::RemoveEdge(const Vertex& i_u, const Vertex& i_v)
+	PUBLIC VIRTUAL void AdjacencyMatrix::RemoveEdge(const int i_u, const int i_v)
 	{
-		if (i_u >= m_NumOfVertex || i_v >= m_NumOfVertex)
-			throw SimDirGraphExceptions("Vertex doesn't exist");
+		if (i_u < 0 || i_u >= m_NumOfVertex || i_v < 0 || i_v >= m_NumOfVertex)
+			throw SimDirGraphExceptions("Invalid argument - Vertex ID doesn't exist.");
 		if (m_GraphMatrix[i_u][i_v] == nullptr)
 			throw SimDirGraphExceptions("Edge doesn't exist");
 
 		delete m_GraphMatrix[i_u][i_v];
 		m_GraphMatrix[i_u][i_v] = nullptr;
 	}
+
+	/**** Adjacency List Graph Implementation ****/
+
+	PUBLIC AdjacencyList::~AdjacencyList()
+	{
+		if (m_VertexArr != nullptr)
+			delete[] m_VertexArr;
+		if (m_GraphListsArr == nullptr)
+			return; // Graph doesn't exist
+		else
+		{
+			for (int i = 0; i < m_NumOfVertex; i++)
+			{
+				for (auto j = m_GraphListsArr[i].begin(); j != m_GraphListsArr[i].end(); j++)
+				{
+					delete* j; // Dealloc all pairs in the list
+				}
+
+				m_GraphListsArr[i].clear(); // Dealloc all list nodes
+			}
+
+			delete[] m_GraphListsArr;
+		}
+	}
+	PUBLIC VIRTUAL void AdjacencyList::MakeEmptyGraph(const int i_n)
+	{
+		if (i_n <= 0)
+		{
+			throw SimDirGraphExceptions("Invalid number of Vertex");
+		}
+
+		m_NumOfVertex = i_n;
+		m_GraphListsArr = new list<Pair*>[m_NumOfVertex];
+		m_VertexArr = new Vertex[m_NumOfVertex]; // Creating array of vertex - each vertex will get ID according to position in the array.
+	}
+	PUBLIC VIRTUAL bool AdjacencyList::IsAdjacent(const int i_u, const int i_v)
+	{
+		if (i_u < 0 || i_u >= m_NumOfVertex || i_v < 0 || i_v >= m_NumOfVertex)
+		{
+			throw SimDirGraphExceptions("Invalid argument - Vertex ID doesn't exist.");
+		}
+
+		bool isAdjacent = false;
+		Pair* desiredEdge = searchPairInListByVertex(m_VertexArr[i_u], m_VertexArr[i_v]);
+
+		if (desiredEdge != nullptr)
+			isAdjacent = true;
+
+		return isAdjacent;
+	}
+	PUBLIC VIRTUAL list<const SimpleDirectedGraph::Vertex*>* AdjacencyList::GetAdjList(const int i_u)
+	{
+		if (i_u < 0 || i_u >= m_NumOfVertex)
+		{
+			throw SimDirGraphExceptions("Invalid argument - Vertex ID doesn't exist.");
+		}
+
+		list<const Vertex*>* adjList = new list<const Vertex*>;
+
+		for (auto i = m_GraphListsArr[i_u].begin(); i != m_GraphListsArr[i_u].end(); i++)
+		{
+			Pair* currentPairToCompare = dynamic_cast<Pair*>(*i);
+			adjList->push_back(&(currentPairToCompare->m_v)); // Adding vertex to list
+		}
+
+		return adjList;
+	}
+	PUBLIC VIRTUAL void AdjacencyList::AddEdge(const int i_u, const int i_v, const int i_Weight)
+	{
+		if (i_u < 0 || i_u >= m_NumOfVertex || i_v < 0 || i_v >= m_NumOfVertex)
+			throw SimDirGraphExceptions("Invalid argument - Vertex ID doesn't exist.");
+
+		if (!m_AllowNegativeWeight && i_Weight < 0)
+			throw SimDirGraphExceptions("Negative weight doesn't allowed");
+
+		if (this->IsAdjacent(i_u,i_v) == true)
+			throw SimDirGraphExceptions("Parallel edge doesn't allowed");
+
+		Edge* newEdge = new Edge(m_VertexArr[i_u], m_VertexArr[i_v], i_Weight); // ~Pair() makes dealloc.
+		Pair* pairToAdd = new Pair(m_VertexArr[i_v], *newEdge); // ~AdjacencyList() makes dealloc.
+		m_GraphListsArr[i_u].push_back(pairToAdd);
+	}
+	PUBLIC VIRTUAL void AdjacencyList::RemoveEdge(const int i_u, const int i_v)
+	{
+		if (i_u < 0 || i_u >= m_NumOfVertex || i_v < 0 || i_v >= m_NumOfVertex)
+			throw SimDirGraphExceptions("Invalid argument - Vertex ID doesn't exist.");
+		
+		for (auto i = m_GraphListsArr[i_u].begin(); i != m_GraphListsArr[i_u].end(); i++)
+		{
+			Pair* currentPairToCompare = dynamic_cast<Pair*>(*i);
+			if (currentPairToCompare->m_v == m_VertexArr[i_v]) {
+				m_GraphListsArr[i_u].erase(i); // Removing edge
+				return;
+			}
+		}
+		/*Passing loop means edge doesnt exist*/
+		throw SimDirGraphExceptions("Edge doesn't exist");
+	}
+	PRIVATE AdjacencyList::Pair* AdjacencyList::searchPairInListByVertex(const Vertex& i_FromVertex,const Vertex& i_ToVertex)
+	{
+		for (auto i = m_GraphListsArr[i_FromVertex].begin(); i != m_GraphListsArr[i_FromVertex].end(); i++)
+		{
+			Pair* currentPairToCompare = dynamic_cast<Pair*>(*i);
+			if (currentPairToCompare->m_v == m_VertexArr[i_ToVertex]) {
+				return currentPairToCompare;
+			}
+		}
+
+		return nullptr; // Pair didnt found
+	}
+	
 
 }

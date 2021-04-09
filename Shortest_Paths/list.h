@@ -8,147 +8,126 @@ namespace ShortestPaths {
 	class list
 	{
 	private:
-		class NodeListTem
+		class ListNode
 		{
 		public:
-			T data;
-			NodeListTem* next;
-			NodeListTem* prev;
+			T m_Data;
+			ListNode* m_Next;
+			ListNode* m_Prev;
 		};
 
-		NodeListTem* Head;
-		NodeListTem* Tail;
-		int _size;
+		ListNode* m_Head;
+		ListNode* m_Tail;
+		int m_Size;
 
 	public:
 		class Iterator {
 			friend class list;
-			NodeListTem* ptr;
+			ListNode* m_Ptr;
 		public:
 			Iterator() {};
-			Iterator(NodeListTem* _ptr) { ptr = _ptr; }
-			Iterator(const Iterator& other) : ptr(other.ptr) {}
+			Iterator(ListNode* i_Ptr) { m_Ptr = i_Ptr; }
+			Iterator(const Iterator& other) : m_Ptr(other.m_Ptr) {}
 			Iterator& operator++() {
-				ptr = ptr->next;
+				m_Ptr = m_Ptr->m_Next;
 				return *this;
 			}
 			Iterator& operator++(int) {
-				Iterator temp(this->ptr);
-				ptr = ptr->next;
+				Iterator temp(this->m_Ptr);
+				m_Ptr = m_Ptr->m_Next;
 				return temp;
 			}
-
 			bool operator !=(const Iterator& other) const {
 				return !(*this == other);
 			}
-
 			bool operator ==(const Iterator& other) const {
-				return (this->ptr == other.ptr); // 
+				return (this->m_Ptr == other.m_Ptr); // 
 			}
-
-			T& operator*() { return ptr->data; }
+			T& operator*() { return m_Ptr->m_Data; }
 		};
 
-		list() :Head(nullptr), Tail(nullptr), _size(0) {}
+		list() :m_Head(nullptr), m_Tail(nullptr), m_Size(0) {}
 		~list() {
-			NodeListTem* temp = Head;
-			NodeListTem* del;
-			while (temp != nullptr) {
-				del = temp;
-				temp = temp->next;
-				delete del;
+			ListNode* currentNode = m_Head;
+			ListNode* nodeToDel;
+			while (currentNode != nullptr) {
+				nodeToDel = currentNode;
+				currentNode = currentNode->m_Next;
+				delete nodeToDel;
 			}
 		}
 
-		void push_front(T _data) {
-			NodeListTem* temp = new (NodeListTem);
-			temp->prev = nullptr;
-			temp->data = _data;
-			if (!Head) {
-				temp->next = nullptr;
-				Head = Tail = temp;
+		void push_front(T i_Data) {
+			ListNode* nodeToAdd = new (ListNode);
+			nodeToAdd->m_Prev = nullptr;
+			nodeToAdd->m_Data = i_Data;
+
+			if (!m_Head) { // Empty List
+				nodeToAdd->m_Next = nullptr;
+				m_Head = m_Tail = nodeToAdd;
 			}
-			else {
-				temp->next = Head;
-				Head->prev = temp;
-				Head = temp;
+			else { // Insert before current head
+				nodeToAdd->m_Next = m_Head;
+				m_Head->m_Prev = nodeToAdd;
+				m_Head = nodeToAdd;
 			}
-			_size++;
+
+			m_Size++;
 		}
 
-		void push_back(T _data) {
-			NodeListTem* temp = new NodeListTem;
-			temp->next = nullptr;
-			temp->data = _data;
-			if (!Head) {
-				temp->prev = nullptr;
-				Head = Tail = temp;
+		void push_back(T i_data) {
+			ListNode* nodeToAdd = new ListNode;
+			nodeToAdd->m_Next = nullptr;
+			nodeToAdd->m_Data = i_data;
+
+			if (!m_Head) { // Empty list
+				nodeToAdd->m_Prev = nullptr;
+				m_Head = m_Tail = nodeToAdd;
 			}
-			else {
-				temp->prev = Tail;
-				Tail->next = temp;
-				Tail = temp;
+			else { // Insert to tail
+				nodeToAdd->m_Prev = m_Tail;
+				m_Tail->m_Next = nodeToAdd;
+				m_Tail = nodeToAdd;
 			}
-			_size++;
+
+			m_Size++;
 		}
 
 		void pop_front() {
-			NodeListTem* del = Head;
-			if (Head == nullptr)
-				return;
-
-			else if (Head == Tail) {
-				Head == Tail == nullptr;
-				delete del;
-			}
-			else {
-				Head = Head->next;
-				delete del;
-			}
-			_size--;
+			this->erase(this->front());
 		}
 
 		void pop_back() {
-			NodeListTem* del = Tail;
-			if (Head == Tail) {
-				Head == Tail == nullptr;
-				delete del;
-			}
-			else {
-				Tail = Tail->prev;
-				delete del;
-			}
-			_size--;
+			this->erase(this->end());
 		}
 
 		void clear() {
-			NodeListTem* temp = Head;
-			NodeListTem* del;
+			ListNode* temp = m_Head;
+			ListNode* del;
 			while (temp != nullptr) {
 				del = temp;
-				temp = temp->next;
+				temp = temp->m_Next;
 				delete del;
-				_size--;
+				m_Size--;
 			}
-			Head = Tail = nullptr;
+			m_Head = m_Tail = nullptr;
 		}
 
-		T& front() { return Head->data; }
-		int size() { return _size; }
-		int size() const { return _size; }
-		bool empty() { return _size; }
+		T& front() { return m_Head->m_Data; }
+		int size() { return m_Size; }
+		bool empty() { return m_Size; }
 
 		bool operator ==(list& other) {
-			NodeListTem* first = this->Head;
-			NodeListTem* second = other->Head;
+			ListNode* first = this->m_Head;
+			ListNode* second = other->m_Head;
 			while (first && second)
 			{
 				if (first != second) {
 					return false;
 				}
 				else {
-					first = first->next;
-					second = second->next;
+					first = first->m_Next;
+					second = second->m_Next;
 				}
 			}
 			if (!(first) && !(second))
@@ -158,74 +137,46 @@ namespace ShortestPaths {
 		}
 
 		list& operator =(list& other) {
-			NodeListTem* temp = other->Head;
+			ListNode* temp = other->m_Head;
 			this->clear();
 			while (temp) {
-				this->push_back(temp->data);
-				temp = temp->next;
+				this->push_back(temp->m_Data);
+				temp = temp->m_Next;
 			}
 
 		}
 
-		Iterator begin() { return Iterator(Head); }
+		Iterator begin() { return Iterator(m_Head); }
 		Iterator end() { return Iterator(nullptr); }
-		Iterator rbegin() { return Iterator(Tail); }
-		Iterator rend() { return Iterator(nullptr); }
 
-
-		Iterator Insert(Iterator itr, T _data) {
-			NodeListTem* temp = new NodeListTem;;
-			if (itr == end()) {
-				if (Head == nullptr) {
-					temp->next = nullptr;
-					temp->prev = nullptr;
-					temp->data = _data;
-					Head = Tail = temp;
+		Iterator erase(const Iterator& i_iterToErase) {
+			Iterator prevIter = i_iterToErase.m_Ptr->m_Prev;
+			
+			if (prevIter == nullptr) // Node to erase is the head of the list
+			{
+				m_Head = i_iterToErase.m_Ptr->m_Next;
+				if (m_Head == nullptr) // After erase the node - the list will be empty
+					m_Tail == nullptr;
+				else
+					m_Head->m_Prev = nullptr;
+			}
+			else // Node to erase is not the head
+			{
+				prevIter.m_Ptr->m_Next = i_iterToErase.m_Ptr->m_Next;
+				if (i_iterToErase.m_Ptr->m_Next == nullptr) // Node to erase is the tail of the list
+				{
+					m_Tail = prevIter.m_Ptr;
+				}
+				else
+				{
+					i_iterToErase.m_Ptr->m_Next->m_Prev = prevIter.m_Ptr;
 				}
 			}
-			else {
-				NodeListTem* pre = itr.ptr->prev;
-				temp->next = itr.ptr;
-				temp->prev = pre;
-				temp->data = _data;
-				itr.ptr->prev = temp;
-				if (itr.ptr == Head)
-					Head = temp;
-				else
-					pre->next = temp;
-			}
-			_size++;
-			return Iterator(temp);
-		}
 
-		Iterator erase(const Iterator& itr) {
-			Iterator pre(itr.ptr->prev);
-			pre.ptr->next = itr.ptr->next;
-			itr.ptr->next->prev = pre.ptr;
-			delete itr.ptr;
-			if (itr.ptr == Head)
-				Head = itr.ptr->next;
-			if (itr.ptr == Tail)
-				Tail = itr.ptr->prev;
-			_size--;
-			return pre;
+			delete i_iterToErase.m_Ptr;
+			m_Size--;
+			return prevIter;
 		}
-		Iterator erase(const Iterator& first, const Iterator& last) {
-			Iterator temp;
-			Iterator pre(first.ptr->prev);
-			Iterator nex(last.ptr->next);
-			pre.ptr->next = nex.ptr;
-			nex.ptr->prev = pre.ptr;
-			while (first != last) {
-				temp(first.ptr);
-				delete temp.ptr;
-				++first;
-				_size--;
-			}
-			delete last.ptr;
-			return pre;
-		}
-
 	};
 
 
