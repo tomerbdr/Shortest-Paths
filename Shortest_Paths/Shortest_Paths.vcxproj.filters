@@ -21,6 +21,9 @@
     <ClInclude Include="SimpleDirectedGraph.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="PriorityQueue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SimpleDirectedGraph.cpp">

@@ -139,6 +139,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="PriorityQueue.h" />
     <ClInclude Include="SimpleDirectedGraph.h" />
     <ClInclude Include="list.h" />
   </ItemGroup>
