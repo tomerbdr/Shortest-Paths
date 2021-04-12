@@ -24,26 +24,41 @@ namespace ShortestPaths
 	};
 
 	template <class T>
-	class ArrayPriorityQueue
+	class PriorityQueue
 	{
-	private:
+	protected:
 		Pair<T>** m_Array;
 		unsigned int m_MaxSize;
 		unsigned int m_CurrentSize;
-		unsigned int m_MinIndex;
+
+	public:
+		PriorityQueue() { m_Array = nullptr;  m_MaxSize = m_CurrentSize = 0; }
+		PriorityQueue(Pair<T>* i_Array, const unsigned int i_Size) { Build(i_Array, i_Size); }
+		~PriorityQueue() { delete[] m_Array; }
+		virtual void Build(Pair<T>* i_Array, const unsigned int i_Size) = 0;
+		virtual Pair<T>& DeleteMin() = 0;
+		virtual void DecreaseKey(const unsigned int i_Place, const int i_NewKey) = 0;
+		bool IsEmpty() { return m_CurrentSize == 0; }
+	};
+
+	template <class T>
+	class ArrayPriorityQueue : PriorityQueue<T>
+	{
+	private:
+		unsigned int m_MinIndex = 0;
 		unsigned int findMinIndex()
 		{
-			if (m_CurrentSize == 0) /*Empty*/
+			if (this->m_CurrentSize == 0) /*Empty*/
 				throw PriorityQueueExceptions("Quence is empty.");
 
-			int minKey = m_Array[0]->m_Key;
+			int minKey = this->m_Array[0]->m_Key;
 			int minIndex = 0;
 
-			for (int i = 0; i < m_CurrentSize; i++)
+			for (int i = 0; i < this->m_CurrentSize; i++)
 			{
-				if ((*(m_Array[i])).m_Key < minKey)
+				if ((*(this->m_Array[i])).m_Key < minKey)
 				{
-					minKey = (*(m_Array[i])).m_Key;
+					minKey = (*(this->m_Array[i])).m_Key;
 					minIndex = i;
 				}
 			}
@@ -51,23 +66,20 @@ namespace ShortestPaths
 			return minIndex;
 		}
 	public:
-		ArrayPriorityQueue() { m_Array = nullptr;  m_MaxSize = m_CurrentSize = 0; }
-		ArrayPriorityQueue(Pair<T>* i_Array, const unsigned int i_Size) { Build(i_Array, i_Size); }
-		~ArrayPriorityQueue() { delete[] m_Array; }
 		virtual void Build(Pair<T>* i_Array, const unsigned int i_Size)
 		{
 			if (i_Size == 0)
 				throw PriorityQueueExceptions("Invalid argument - Size cannot be 0");
 
-			m_CurrentSize = 0;
-			m_Array = new Pair<T>*[i_Size];
+			this->m_CurrentSize = 0;
+			this->m_Array = new Pair<T>*[i_Size];
 			for (int i = 0; i < i_Size; i++)
 			{
-				m_Array[i] = &(i_Array[i]);
-				m_CurrentSize++;
+				this->m_Array[i] = &(i_Array[i]);
+				this->m_CurrentSize++;
 			}
-			m_MaxSize = i_Size;
-			m_MinIndex = findMinIndex();
+			this->m_MaxSize = i_Size;
+			this->m_MinIndex = findMinIndex();
 
 		}
 		virtual Pair<T>& DeleteMin() 
@@ -76,41 +88,37 @@ namespace ShortestPaths
 			{
 				throw PriorityQueueExceptions("Quence is empty."); // Empty
 			}
-			Pair<T>& pairToDelete = *m_Array[m_MinIndex];
-			if (m_MinIndex != m_CurrentSize - 1) // The pair to delete is not locate in the last position of the array.
+			Pair<T>& pairToDelete = *this->m_Array[m_MinIndex];
+			if (this->m_MinIndex != this->m_CurrentSize - 1) // The pair to delete is not locate in the last position of the array.
 			{
-				m_Array[m_MinIndex] = m_Array[m_CurrentSize - 1];
-				m_Array[m_CurrentSize - 1] = nullptr;
+				this->m_Array[this->m_MinIndex] = this->m_Array[this->m_CurrentSize - 1];
+				this->m_Array[this->m_CurrentSize - 1] = nullptr;
 			}
 			else
 			{
-				m_Array[m_MinIndex] = nullptr;
+				this->m_Array[this->m_MinIndex] = nullptr;
 			}
 
-			m_CurrentSize--;
-			m_MinIndex = findMinIndex(); // Finding new min
+			this->m_CurrentSize--;
+			this->m_MinIndex = findMinIndex(); // Finding new min
 			return pairToDelete;
 		}
-		virtual bool IsEmpty()  { return m_CurrentSize == 0; }
 		virtual void DecreaseKey(const unsigned int i_Place, const int i_NewKey) 
 		{
-			if (i_Place >= m_CurrentSize)
+			if (i_Place >= this->m_CurrentSize)
 				throw PriorityQueueExceptions("Invalid argument - Place is out of range.");
 
-			m_Array[i_Place]->m_Key = i_NewKey;
+			this->m_Array[i_Place]->m_Key = i_NewKey;
 
-			if (i_Place == m_MinIndex)
-				m_MinIndex = findMinIndex();
+			if (i_Place == this->m_MinIndex)
+				this->m_MinIndex = findMinIndex();
 		}
 	};
 
 	template <class T>
-	class HeapPriorityQueue
+	class HeapPriorityQueue : PriorityQueue<T>
 	{
 	private:
-		Pair<T>** m_Array;
-		unsigned int m_MaxSize;
-		unsigned int m_CurrentSize;
 		static const unsigned int leftChild(int i_NodeIndex) { return i_NodeIndex * 2 + 1; }
 		static const unsigned int rightChild(int i_NodeIndex) { return i_NodeIndex * 2 + 2; }
 		static const int parent(int i_NodeIndex) { return (i_NodeIndex - 1) / 2 ; }
@@ -120,39 +128,36 @@ namespace ShortestPaths
 			left = leftChild(i_NodeIndex);
 			right = rightChild(i_NodeIndex);
 
-			if ((left < m_CurrentSize) && (m_Array[left]->m_Key < m_Array[i_NodeIndex]->m_Key))
+			if ((left < this->m_CurrentSize) && (this->m_Array[left]->m_Key < this->m_Array[i_NodeIndex]->m_Key))
 				min = left;
 			else
 				min = i_NodeIndex;
-			if ((right < m_CurrentSize) && (m_Array[right]->m_Key < m_Array[min]->m_Key))
+			if ((right < this->m_CurrentSize) && (this->m_Array[right]->m_Key < this->m_Array[min]->m_Key))
 				min = right;
 
 			if (min != i_NodeIndex)
 			{
-				Pair<T>* temp = m_Array[i_NodeIndex];
-				m_Array[i_NodeIndex] = m_Array[min];
-				m_Array[min] = temp;
+				Pair<T>* temp = this->m_Array[i_NodeIndex];
+				this->m_Array[i_NodeIndex] = this->m_Array[min];
+				this->m_Array[min] = temp;
 				fixHeap(min);
 			}
 
 		}
 	public:
-		HeapPriorityQueue() { m_Array = nullptr;  m_MaxSize = m_CurrentSize = 0; }
-	    HeapPriorityQueue(Pair<T>* i_Array, const unsigned int i_Size) { Build(i_Array, i_Size); }
-		~HeapPriorityQueue() { delete[] m_Array; }
 		virtual void Build(Pair<T>* i_Array, const unsigned int i_Size)
 		{
 			if (i_Size == 0)
 				throw PriorityQueueExceptions("Invalid argument - Size cannot be 0");
 
-			m_CurrentSize = 0;
-			m_Array = new Pair<T> * [i_Size];
+			this->m_CurrentSize = 0;
+			this->m_Array = new Pair<T> * [i_Size];
 			for (int i = 0; i < i_Size; i++)
 			{
-				m_Array[i] = &(i_Array[i]);
-				m_CurrentSize++;
+				this->m_Array[i] = &(i_Array[i]);
+				this->m_CurrentSize++;
 			}
-			m_MaxSize = i_Size;
+			this->m_MaxSize = i_Size;
 
 			for (int i = (i_Size / 2 - 1); i >= 0; i--)
 				fixHeap(i);
@@ -164,31 +169,30 @@ namespace ShortestPaths
 				throw PriorityQueueExceptions("Quence is empty."); // Empty
 			}
 
-			Pair<T>& minPair = *m_Array[0];
-			m_Array[0] = m_Array[m_CurrentSize - 1];
-			m_CurrentSize--;
+			Pair<T>& minPair = *this->m_Array[0];
+			this->m_Array[0] = this->m_Array[this->m_CurrentSize - 1];
+			this->m_CurrentSize--;
 			fixHeap(0);
 
 			return minPair;
 		}
-		virtual bool IsEmpty() { return m_CurrentSize == 0; }
 		virtual void DecreaseKey(const unsigned int i_Place, const int i_NewKey)
 		{
-			if (i_Place >= m_CurrentSize)
+			if (i_Place >= this->m_CurrentSize)
 				throw PriorityQueueExceptions("Invalid argument - Place out of range");
 
-			if (m_Array[i_Place]->m_Key <= i_NewKey)
+			if (this->m_Array[i_Place]->m_Key <= i_NewKey)
 				throw PriorityQueueExceptions("New key isn't lower the original key");
 
-			m_Array[i_Place]->m_Key = i_NewKey;
+			this->m_Array[i_Place]->m_Key = i_NewKey;
 			
 			int currentParentIndex = parent(i_Place);
 			int decreaseKeyIndex = i_Place;
-			while (currentParentIndex >= 0 && m_Array[currentParentIndex]->m_Key > m_Array[decreaseKeyIndex]->m_Key)
+			while (currentParentIndex >= 0 && this->m_Array[currentParentIndex]->m_Key > this->m_Array[decreaseKeyIndex]->m_Key)
 			{
-				Pair<T>* temp = m_Array[decreaseKeyIndex];
-				m_Array[decreaseKeyIndex] = m_Array[currentParentIndex];
-				m_Array[currentParentIndex] = temp;
+				Pair<T>* temp = this->m_Array[decreaseKeyIndex];
+				this->m_Array[decreaseKeyIndex] = this->m_Array[currentParentIndex];
+				this->m_Array[currentParentIndex] = temp;
 				decreaseKeyIndex = currentParentIndex;
 				currentParentIndex = parent(decreaseKeyIndex);
 			}

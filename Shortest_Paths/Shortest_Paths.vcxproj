@@ -140,11 +140,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="PriorityQueue.h" />
+    <ClInclude Include="ShortPath.h" />
     <ClInclude Include="SimpleDirectedGraph.h" />
     <ClInclude Include="list.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ShortPath.cpp" />
     <ClCompile Include="SimpleDirectedGraph.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -35,8 +35,9 @@ namespace ShortestPaths {
 	/*Fields*/
 	protected:
 		unsigned int m_NumOfVertex;
+		Vertex* m_VertexArr;
 		bool m_AllowNegativeWeight = false;
-		// TODO: Add Vertex Array to here.
+		virtual int getEdgeWeight(const unsigned int i_u, const unsigned int i_v) = 0;
 	/*Methods*/
 	public:
 		virtual void MakeEmptyGraph(const int i_n) = 0;
@@ -44,6 +45,18 @@ namespace ShortestPaths {
 		virtual list<const Vertex*>* GetAdjList(const int i_u) = 0;
 		virtual void AddEdge(const int i_u,const int i_v,const int i_Weight) = 0;
 		virtual void RemoveEdge(const int i_u, const int i_v) = 0;
+		const int GetNumOfVertex() { return m_NumOfVertex; }
+		const Vertex& GetVertex(const int i_u) {
+			if (i_u < 0 || i_u >= m_NumOfVertex)
+			{
+				throw "Invalid argument - Vertex ID doesn't exist."; //TODO : move to cpp
+			}
+			return m_VertexArr[i_u];
+		}
+
+		friend class ShortPath;
+	private:
+		void relax(const int i_u, const int i_v, int* d, Vertex** p);
 	};
 	
 	class AdjacencyMatrix : public SimpleDirectedGraph
@@ -51,17 +64,18 @@ namespace ShortestPaths {
 	/*Fields*/
 	private:
 		Edge*** m_GraphMatrix;
-		Vertex* m_VertexArr;
 
 	/*Methods*/
 	public:
-		AdjacencyMatrix() : m_GraphMatrix(nullptr), m_VertexArr(nullptr) { m_NumOfVertex = 0; }
+		AdjacencyMatrix() : m_GraphMatrix(nullptr) { m_VertexArr = nullptr; m_NumOfVertex = 0; }
 		~AdjacencyMatrix();
 		virtual void MakeEmptyGraph(const int i_n) override;
 		virtual bool IsAdjacent(const int i_u, const int i_v) override;
 		virtual list<const Vertex*>* GetAdjList(const int i_u) override;
 		virtual void AddEdge(const int i_u, const int i_v, const int i_Weight) override;		
 		virtual void RemoveEdge(const int i_u, const int i_v) override;
+	private:
+		virtual int getEdgeWeight(const unsigned int i_u, const unsigned int i_v);
 	};
 
 	class AdjacencyList : public SimpleDirectedGraph
@@ -74,10 +88,9 @@ namespace ShortestPaths {
 			~Pair() { delete &m_Edge; }
 		};
 		list<Pair*>* m_GraphListsArr;
-		Vertex* m_VertexArr;
 
 	public:
-		AdjacencyList() : m_GraphListsArr(nullptr), m_VertexArr(nullptr) {}
+		AdjacencyList() : m_GraphListsArr(nullptr) { m_VertexArr = nullptr; m_NumOfVertex = 0; }
 		~AdjacencyList();
 		virtual void MakeEmptyGraph(const int i_n) override;
 		virtual bool IsAdjacent(const int i_u, const int i_v) override;
@@ -86,6 +99,7 @@ namespace ShortestPaths {
 		virtual void RemoveEdge(const int i_u, const int i_v) override;
 	private:
 		Pair* searchPairInListByVertex(const Vertex& i_FromVertex,const Vertex& i_ToVertex);
+		virtual int getEdgeWeight(const unsigned int i_u, const unsigned int i_v);
 	};
 
 	class SimDirGraphExceptions : public exception {

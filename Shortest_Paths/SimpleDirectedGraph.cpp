@@ -80,6 +80,9 @@ namespace ShortestPaths {
 		if (i_u < 0 || i_u >= m_NumOfVertex || i_v < 0 || i_v >= m_NumOfVertex)
 			throw SimDirGraphExceptions("Invalid argument - Vertex ID doesn't exist.");
 
+		if (i_u == i_v)
+			throw SimDirGraphExceptions("Self loop are not allowed.");
+
 		if (m_GraphMatrix[i_u][i_v] != nullptr)
 			throw SimDirGraphExceptions("Parallel edge doesn't allowed");
 
@@ -98,7 +101,15 @@ namespace ShortestPaths {
 		delete m_GraphMatrix[i_u][i_v];
 		m_GraphMatrix[i_u][i_v] = nullptr;
 	}
+	PRIVATE VIRTUAL int AdjacencyMatrix::getEdgeWeight(const unsigned int i_u, const unsigned int i_v)
+	{
+		if (i_u < 0 || i_u >= m_NumOfVertex || i_v < 0 || i_v >= m_NumOfVertex)
+			throw SimDirGraphExceptions("Invalid argument - Vertex ID doesn't exist.");
+		if (m_GraphMatrix[i_u][i_v] == nullptr)
+			throw SimDirGraphExceptions("Edge doesn't exist");
 
+		return m_GraphMatrix[i_u][i_v]->getWeight();
+	}
 	/**** Adjacency List Graph Implementation ****/
 
 	PUBLIC AdjacencyList::~AdjacencyList()
@@ -170,6 +181,9 @@ namespace ShortestPaths {
 		if (i_u < 0 || i_u >= m_NumOfVertex || i_v < 0 || i_v >= m_NumOfVertex)
 			throw SimDirGraphExceptions("Invalid argument - Vertex ID doesn't exist.");
 
+		if (i_u == i_v)
+			throw SimDirGraphExceptions("Self loop are not allowed.");
+
 		if (!m_AllowNegativeWeight && i_Weight < 0)
 			throw SimDirGraphExceptions("Negative weight doesn't allowed");
 
@@ -208,6 +222,16 @@ namespace ShortestPaths {
 
 		return nullptr; // Pair didnt found
 	}
-	
+	PRIVATE VIRTUAL int AdjacencyList::getEdgeWeight(const unsigned int i_u, const unsigned int i_v)
+	{
+		if (i_u < 0 || i_u >= m_NumOfVertex || i_v < 0 || i_v >= m_NumOfVertex)
+			throw SimDirGraphExceptions("Invalid argument - Vertex ID doesn't exist.");
 
+		Pair* desiredEdgePair = searchPairInListByVertex(m_VertexArr[i_u], m_VertexArr[i_v]);
+		if (desiredEdgePair == nullptr)
+			throw SimDirGraphExceptions("Edge doesn't exist");
+
+		return desiredEdgePair->m_Edge.getWeight();
+	}
+	
 }
