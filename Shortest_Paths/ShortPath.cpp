@@ -24,7 +24,6 @@ namespace ShortestPaths
 			delete[] m_DistanceArr;
 		}
 	}
-
 	PUBLIC void ShortPath::relax(const int i_u, const int i_v)
 	{
 		int edgeWeight = m_Graph->getEdgeWeight(i_u, i_v);
@@ -41,6 +40,7 @@ namespace ShortestPaths
 			m_ParentsArr[i_v] = const_cast<SimpleDirectedGraph::Vertex*>(&(m_Graph->GetVertex(i_u)));
 		}
 	}
+
 /**** BelmanFord ****/
 	VIRTUAL PUBLIC const int BelmanFord::ShortestPath(const int i_u, const int i_v)
 	{
@@ -65,15 +65,15 @@ namespace ShortestPaths
 			for (int j = 0; j < m_Graph->GetNumOfVertex(); j++)
 			{
 				const SimpleDirectedGraph::Vertex& currentFromVertex = m_Graph->GetVertex(j);
-				list<const SimpleDirectedGraph::Vertex*>* vertexList = m_Graph->GetAdjList(currentFromVertex);
+				list<const SimpleDirectedGraph::Vertex*>* adjVertexList = m_Graph->GetAdjList(currentFromVertex);
 
-				for (auto itr = vertexList->begin(); itr != vertexList->end(); itr++)
+				for (auto itr = adjVertexList->begin(); itr != adjVertexList->end(); itr++)
 				{
 					SimpleDirectedGraph::Vertex* currentToVertex = const_cast<SimpleDirectedGraph::Vertex*>(*itr);
 					relax(currentFromVertex, *currentToVertex);
 				}
 
-				delete vertexList;
+				delete adjVertexList;
 			}
 		}
 

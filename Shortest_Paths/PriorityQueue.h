@@ -23,6 +23,7 @@ namespace ShortestPaths
 		Pair(const Pair& i_Other) : Pair(i_Other.m_Key,i_Other.m_Data) {}
 	};
 
+	/**** An abstract class which use as a BASE class to different data structores of Min Prioty Queue****/
 	template <class T>
 	class PriorityQueue
 	{
@@ -35,10 +36,12 @@ namespace ShortestPaths
 		PriorityQueue() { m_Array = nullptr;  m_MaxSize = m_CurrentSize = 0; }
 		PriorityQueue(Pair<T>* i_Array, const unsigned int i_Size) { Build(i_Array, i_Size); }
 		~PriorityQueue() { delete[] m_Array; }
+		bool IsEmpty() { return m_CurrentSize == 0; }
+
+		/***Pure Virtual methods***/
 		virtual void Build(Pair<T>* i_Array, const unsigned int i_Size) = 0;
 		virtual Pair<T>& DeleteMin() = 0;
 		virtual void DecreaseKey(const unsigned int i_Place, const int i_NewKey) = 0;
-		bool IsEmpty() { return m_CurrentSize == 0; }
 	};
 
 	template <class T>
@@ -66,7 +69,7 @@ namespace ShortestPaths
 			return minIndex;
 		}
 	public:
-		virtual void Build(Pair<T>* i_Array, const unsigned int i_Size)
+		virtual void Build(Pair<T>* i_Array, const unsigned int i_Size) override
 		{
 			if (i_Size == 0)
 				throw PriorityQueueExceptions("Invalid argument - Size cannot be 0");
@@ -82,7 +85,7 @@ namespace ShortestPaths
 			this->m_MinIndex = findMinIndex();
 
 		}
-		virtual Pair<T>& DeleteMin() 
+		virtual Pair<T>& DeleteMin() override
 		{
 			if (this->IsEmpty())
 			{
@@ -103,7 +106,7 @@ namespace ShortestPaths
 			this->m_MinIndex = findMinIndex(); // Finding new min
 			return pairToDelete;
 		}
-		virtual void DecreaseKey(const unsigned int i_Place, const int i_NewKey) 
+		virtual void DecreaseKey(const unsigned int i_Place, const int i_NewKey) override
 		{
 			if (i_Place >= this->m_CurrentSize)
 				throw PriorityQueueExceptions("Invalid argument - Place is out of range.");
@@ -145,7 +148,7 @@ namespace ShortestPaths
 
 		}
 	public:
-		virtual void Build(Pair<T>* i_Array, const unsigned int i_Size)
+		virtual void Build(Pair<T>* i_Array, const unsigned int i_Size) override
 		{
 			if (i_Size == 0)
 				throw PriorityQueueExceptions("Invalid argument - Size cannot be 0");
@@ -162,7 +165,7 @@ namespace ShortestPaths
 			for (int i = (i_Size / 2 - 1); i >= 0; i--)
 				fixHeap(i);
 		}
-		virtual Pair<T>& DeleteMin()
+		virtual Pair<T>& DeleteMin() override
 		{
 			if (this->IsEmpty())
 			{
@@ -175,8 +178,8 @@ namespace ShortestPaths
 			fixHeap(0);
 
 			return minPair;
-		}
-		virtual void DecreaseKey(const unsigned int i_Place, const int i_NewKey)
+		} 
+		virtual void DecreaseKey(const unsigned int i_Place, const int i_NewKey) override
 		{
 			if (i_Place >= this->m_CurrentSize)
 				throw PriorityQueueExceptions("Invalid argument - Place out of range");

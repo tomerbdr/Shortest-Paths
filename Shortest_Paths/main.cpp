@@ -13,7 +13,7 @@ using namespace ShortestPaths;
 void main() {
 	try
 	{
-	fstream graphFile("Graph2.txt");
+	fstream graphFile("Graph.txt");
 	if (!graphFile)
 		throw "File doesnt exist";
 

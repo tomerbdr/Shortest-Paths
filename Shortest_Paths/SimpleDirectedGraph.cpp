@@ -5,7 +5,15 @@
 #define PROTECTED
 
 namespace ShortestPaths {
-		
+	/**** Base Class Implementation ****/
+	PUBLIC const SimpleDirectedGraph::Vertex& SimpleDirectedGraph::GetVertex(const int i_u)
+	{
+		if (i_u < 0 || i_u >= m_NumOfVertex)
+		{
+			throw SimDirGraphExceptions("Invalid argument - Vertex ID doesn't exist.");
+		}
+		return m_VertexArr[i_u];
+	}
 	/**** Adjacency Matrix Graph Implementation ****/
 	PUBLIC AdjacencyMatrix::~AdjacencyMatrix()
 	{

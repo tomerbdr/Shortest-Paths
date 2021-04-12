@@ -3,7 +3,7 @@
 using namespace std;
 
 namespace ShortestPaths {
-
+	/**** Linked-list for use such as <list> in STL****/
 	template <class T>
 	class list
 	{
@@ -21,7 +21,8 @@ namespace ShortestPaths {
 		int m_Size;
 
 	public:
-		class Iterator {
+		class Iterator
+		{
 			friend class list;
 			ListNode* m_Ptr;
 		public:
@@ -32,32 +33,32 @@ namespace ShortestPaths {
 				m_Ptr = m_Ptr->m_Next;
 				return *this;
 			}
-			Iterator& operator++(int) {
+			Iterator& operator++(int)
+			{
 				Iterator temp(this->m_Ptr);
 				m_Ptr = m_Ptr->m_Next;
 				return temp;
 			}
-			bool operator !=(const Iterator& other) const {
-				return !(*this == other);
-			}
-			bool operator ==(const Iterator& other) const {
-				return (this->m_Ptr == other.m_Ptr); // 
-			}
+			bool operator !=(const Iterator& other) const { return !(*this == other); }
+			bool operator ==(const Iterator& other) const { return (this->m_Ptr == other.m_Ptr); }
 			T& operator*() { return m_Ptr->m_Data; }
 		};
 
 		list() :m_Head(nullptr), m_Tail(nullptr), m_Size(0) {}
-		~list() {
+		~list() 
+		{
 			ListNode* currentNode = m_Head;
 			ListNode* nodeToDel;
-			while (currentNode != nullptr) {
+
+			while (currentNode != nullptr) 
+			{
 				nodeToDel = currentNode;
 				currentNode = currentNode->m_Next;
 				delete nodeToDel;
 			}
 		}
-
-		void push_front(T i_Data) {
+		void push_front(T i_Data)
+		{
 			ListNode* nodeToAdd = new (ListNode);
 			nodeToAdd->m_Prev = nullptr;
 			nodeToAdd->m_Data = i_Data;
@@ -74,8 +75,8 @@ namespace ShortestPaths {
 
 			m_Size++;
 		}
-
-		void push_back(T i_data) {
+		void push_back(T i_data)
+		{
 			ListNode* nodeToAdd = new ListNode;
 			nodeToAdd->m_Next = nullptr;
 			nodeToAdd->m_Data = i_data;
@@ -92,19 +93,20 @@ namespace ShortestPaths {
 
 			m_Size++;
 		}
-
-		void pop_front() {
+		void pop_front()
+		{
 			this->erase(this->front());
 		}
-
-		void pop_back() {
+		void pop_back()
+		{
 			this->erase(this->end());
 		}
-
-		void clear() {
+		void clear()
+		{
 			ListNode* temp = m_Head;
 			ListNode* del;
-			while (temp != nullptr) {
+			while (temp != nullptr)
+			{
 				del = temp;
 				temp = temp->m_Next;
 				delete del;
@@ -112,12 +114,11 @@ namespace ShortestPaths {
 			}
 			m_Head = m_Tail = nullptr;
 		}
-
 		T& front() { return m_Head->m_Data; }
 		int size() { return m_Size; }
 		bool empty() { return m_Size; }
-
-		bool operator ==(list& other) {
+		bool operator ==(list& other)
+		{
 			ListNode* first = this->m_Head;
 			ListNode* second = other->m_Head;
 			while (first && second)
@@ -135,20 +136,20 @@ namespace ShortestPaths {
 			else
 				return false;
 		}
-
-		list& operator =(list& other) {
+		list& operator =(list& other)
+		{
 			ListNode* temp = other->m_Head;
 			this->clear();
-			while (temp) {
+
+			while (temp)
+			{
 				this->push_back(temp->m_Data);
 				temp = temp->m_Next;
 			}
 
 		}
-
 		Iterator begin() { return Iterator(m_Head); }
 		Iterator end() { return Iterator(nullptr); }
-
 		Iterator erase(const Iterator& i_iterToErase) {
 			Iterator prevIter = i_iterToErase.m_Ptr->m_Prev;
 			

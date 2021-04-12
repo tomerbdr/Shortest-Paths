@@ -4,6 +4,7 @@
 using namespace std;
 
 namespace ShortestPaths {
+	/**** An abstract class which use as a BASE class to different data structores of Simple directed graphs****/
 	class SimpleDirectedGraph 
 	{
 	public:
@@ -30,14 +31,11 @@ namespace ShortestPaths {
 			const Vertex& getTo() { return m_To; }
 			const int getWeight() { return m_Weight; }
 		};
-
-
 	/*Fields*/
 	protected:
 		unsigned int m_NumOfVertex;
 		Vertex* m_VertexArr;
 		bool m_AllowNegativeWeight = false;
-		virtual int getEdgeWeight(const unsigned int i_u, const unsigned int i_v) = 0;
 	/*Methods*/
 	public:
 		virtual void MakeEmptyGraph(const int i_n) = 0;
@@ -46,17 +44,8 @@ namespace ShortestPaths {
 		virtual void AddEdge(const int i_u,const int i_v,const int i_Weight) = 0;
 		virtual void RemoveEdge(const int i_u, const int i_v) = 0;
 		const int GetNumOfVertex() { return m_NumOfVertex; }
-		const Vertex& GetVertex(const int i_u) {
-			if (i_u < 0 || i_u >= m_NumOfVertex)
-			{
-				throw "Invalid argument - Vertex ID doesn't exist."; //TODO : move to cpp
-			}
-			return m_VertexArr[i_u];
-		}
-
-		friend class ShortPath;
-	private:
-		void relax(const int i_u, const int i_v, int* d, Vertex** p);
+		const Vertex& GetVertex(const int i_u);
+		virtual int getEdgeWeight(const unsigned int i_u, const unsigned int i_v) = 0;
 	};
 	
 	class AdjacencyMatrix : public SimpleDirectedGraph
