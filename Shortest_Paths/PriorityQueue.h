@@ -20,16 +20,16 @@ namespace ShortestPaths
 	private:
 		struct Value
 		{
-			int m_Value;
+			float m_Value;
 			bool isInfinity;
 			Value() { isInfinity = true; m_Value = 0; }
-			Value(int i_Num) { isInfinity = false; m_Value = i_Num; }
-			void operator=(int i_Num) { isInfinity = false; m_Value = i_Num; }
-			bool operator >(int i_Num) { return (isInfinity || m_Value > i_Num); }
-			bool operator <(int i_Num) { return (!isInfinity && m_Value < i_Num); }
-			bool operator ==(int i_Num) { return (!isInfinity && m_Value == i_Num); }
-			bool operator >=(int i_Num) { return (this->operator>(i_Num) || this->operator==(i_Num)); }
-			bool operator <=(int i_Num) { return (this->operator<(i_Num) || this->operator==(i_Num)); }
+			Value(float i_Num) { isInfinity = false; m_Value = i_Num; }
+			void operator=(float i_Num) { isInfinity = false; m_Value = i_Num; }
+			bool operator >(float i_Num) { return (isInfinity || m_Value > i_Num); }
+			bool operator <(float i_Num) { return (!isInfinity && m_Value < i_Num); }
+			bool operator ==(float i_Num) { return (!isInfinity && m_Value == i_Num); }
+			bool operator >=(float i_Num) { return (this->operator>(i_Num) || this->operator==(i_Num)); }
+			bool operator <=(float i_Num) { return (this->operator<(i_Num) || this->operator==(i_Num)); }
 			bool operator >(Value& i_Other) 
 			{
 				bool res;
@@ -54,14 +54,14 @@ namespace ShortestPaths
 
 				return res;
 			}
-			operator int() { return m_Value; }
+			operator float() { return m_Value; }
 		};
 
 	public:
 		Value m_Key;
 		T m_Data;
 		Pair() { /*m_Key = 0;*/ m_Data = 0; } //TODO FIX
-		Pair(const int i_Key, const T i_Data) : m_Key(i_Key), m_Data(i_Data) {}
+		Pair(const float i_Key, const T i_Data) : m_Key(i_Key), m_Data(i_Data) {}
 		Pair(const Pair& i_Other) : Pair(i_Other.m_Key, i_Other.m_Data) {}
 	};
 
@@ -121,7 +121,7 @@ namespace ShortestPaths
 		/***Pure Virtual methods***/
 		virtual void Build(Pair<T>* i_Array, const unsigned int i_Size) = 0;
 		virtual Pair<T>& DeleteMin() = 0;
-		virtual void DecreaseKey(const unsigned int i_Place, const int i_NewKey) = 0;
+		virtual void DecreaseKey(const unsigned int i_Place, const float i_NewKey) = 0;
 	};
 
 	template <class T>
@@ -178,7 +178,7 @@ namespace ShortestPaths
 
 			return pairToDelete;
 		}
-		virtual void DecreaseKey(const unsigned int i_Place, const int i_NewKey) override
+		virtual void DecreaseKey(const unsigned int i_Place, const float i_NewKey) override
 		{
 			if (i_Place >= this->m_MaxSize || this->m_CurrIndex[i_Place] == NOT_IN_QUEUE)
 				throw PriorityQueueExceptions("Invalid argument - Object doesnt exist in the queue.");
@@ -246,7 +246,7 @@ namespace ShortestPaths
 
 			return minPair;
 		}
-		virtual void DecreaseKey(const unsigned int i_Place, const int i_NewKey) override
+		virtual void DecreaseKey(const unsigned int i_Place, const float i_NewKey) override
 		{
 			if (i_Place >= this->m_MaxSize)
 				throw PriorityQueueExceptions("Invalid argument - Place out of range");

@@ -27,7 +27,8 @@ void main() {
 	to--;
 	while (!graphFile.eof())
 	{
-		int u, v, weight;
+		int u, v;
+		float weight;
 		graphFile >> u >> v >> weight;
 		G->AddEdge(u - 1, v - 1, weight);
 	}
@@ -38,7 +39,7 @@ void main() {
 	PriorityQueue<SimpleDirectedGraph::Vertex*>* Q2 = new HeapPriorityQueue<SimpleDirectedGraph::Vertex*>;
 
 	ShortPath* S = new BelmanFord(G);
-	int shortpath = S->ShortestPath(from, to);
+	float shortpath = S->ShortestPath(from, to);
 	cout << "Short Path Ford: " << shortpath << endl;
 	delete S;
 
