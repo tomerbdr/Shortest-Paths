@@ -24,12 +24,12 @@ namespace ShortestPaths {
 		private:
 			const Vertex& m_From;
 			const Vertex& m_To;
-			int m_Weight;
+			float m_Weight;
 		public:
-			Edge(const Vertex& i_From,const Vertex& i_To,const int i_VertexWeight) : m_From(i_From), m_To(i_To) , m_Weight(i_VertexWeight) {}
+			Edge(const Vertex& i_From,const Vertex& i_To,const float i_VertexWeight) : m_From(i_From), m_To(i_To) , m_Weight(i_VertexWeight) {}
 			const Vertex& getFrom() { return m_From; }
 			const Vertex& getTo() { return m_To; }
-			const int getWeight() { return m_Weight; }
+			const float getWeight() { return m_Weight; }
 		};
 	/*Fields*/
 	protected:
@@ -41,11 +41,11 @@ namespace ShortestPaths {
 		virtual void MakeEmptyGraph(const int i_n) = 0;
 		virtual bool IsAdjacent(const int i_u, const int i_v) = 0;
 		virtual list<const Vertex*>* GetAdjList(const int i_u) = 0;
-		virtual void AddEdge(const int i_u,const int i_v,const int i_Weight) = 0;
+		virtual void AddEdge(const int i_u,const int i_v,const float i_Weight) = 0;
 		virtual void RemoveEdge(const int i_u, const int i_v) = 0;
 		const int GetNumOfVertex() { return m_NumOfVertex; }
 		const Vertex& GetVertex(const int i_u);
-		virtual int getEdgeWeight(const unsigned int i_u, const unsigned int i_v) = 0;
+		virtual float getEdgeWeight(const unsigned int i_u, const unsigned int i_v) = 0;
 	};
 	
 	class AdjacencyMatrix : public SimpleDirectedGraph
@@ -61,10 +61,10 @@ namespace ShortestPaths {
 		virtual void MakeEmptyGraph(const int i_n) override;
 		virtual bool IsAdjacent(const int i_u, const int i_v) override;
 		virtual list<const Vertex*>* GetAdjList(const int i_u) override;
-		virtual void AddEdge(const int i_u, const int i_v, const int i_Weight) override;		
+		virtual void AddEdge(const int i_u, const int i_v, const float i_Weight) override;
 		virtual void RemoveEdge(const int i_u, const int i_v) override;
 	private:
-		virtual int getEdgeWeight(const unsigned int i_u, const unsigned int i_v);
+		virtual float getEdgeWeight(const unsigned int i_u, const unsigned int i_v);
 	};
 
 	class AdjacencyList : public SimpleDirectedGraph
@@ -84,11 +84,11 @@ namespace ShortestPaths {
 		virtual void MakeEmptyGraph(const int i_n) override;
 		virtual bool IsAdjacent(const int i_u, const int i_v) override;
 		virtual list<const Vertex*>* GetAdjList(const int i_u) override;
-		virtual void AddEdge(const int i_u, const int i_v, const int i_Weight) override;
+		virtual void AddEdge(const int i_u, const int i_v, const float i_Weight) override;
 		virtual void RemoveEdge(const int i_u, const int i_v) override;
 	private:
 		Pair* searchPairInListByVertex(const Vertex& i_FromVertex,const Vertex& i_ToVertex);
-		virtual int getEdgeWeight(const unsigned int i_u, const unsigned int i_v);
+		virtual float getEdgeWeight(const unsigned int i_u, const unsigned int i_v);
 	};
 
 	class SimDirGraphExceptions : public exception {

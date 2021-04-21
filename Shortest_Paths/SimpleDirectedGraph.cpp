@@ -83,7 +83,7 @@ namespace ShortestPaths {
 
 		return adjList;
 	}
-	PUBLIC VIRTUAL void AdjacencyMatrix::AddEdge(const int i_u, const int i_v, const int i_Weight)
+	PUBLIC VIRTUAL void AdjacencyMatrix::AddEdge(const int i_u, const int i_v, const float i_Weight)
 	{
 		if (i_u < 0 || i_u >= m_NumOfVertex || i_v < 0 || i_v >= m_NumOfVertex)
 			throw SimDirGraphExceptions("Invalid argument - Vertex ID doesn't exist.");
@@ -109,7 +109,7 @@ namespace ShortestPaths {
 		delete m_GraphMatrix[i_u][i_v];
 		m_GraphMatrix[i_u][i_v] = nullptr;
 	}
-	PRIVATE VIRTUAL int AdjacencyMatrix::getEdgeWeight(const unsigned int i_u, const unsigned int i_v)
+	PRIVATE VIRTUAL float AdjacencyMatrix::getEdgeWeight(const unsigned int i_u, const unsigned int i_v)
 	{
 		if (i_u < 0 || i_u >= m_NumOfVertex || i_v < 0 || i_v >= m_NumOfVertex)
 			throw SimDirGraphExceptions("Invalid argument - Vertex ID doesn't exist.");
@@ -184,7 +184,7 @@ namespace ShortestPaths {
 
 		return adjList;
 	}
-	PUBLIC VIRTUAL void AdjacencyList::AddEdge(const int i_u, const int i_v, const int i_Weight)
+	PUBLIC VIRTUAL void AdjacencyList::AddEdge(const int i_u, const int i_v, const float i_Weight)
 	{
 		if (i_u < 0 || i_u >= m_NumOfVertex || i_v < 0 || i_v >= m_NumOfVertex)
 			throw SimDirGraphExceptions("Invalid argument - Vertex ID doesn't exist.");
@@ -230,7 +230,7 @@ namespace ShortestPaths {
 
 		return nullptr; // Pair didnt found
 	}
-	PRIVATE VIRTUAL int AdjacencyList::getEdgeWeight(const unsigned int i_u, const unsigned int i_v)
+	PRIVATE VIRTUAL float AdjacencyList::getEdgeWeight(const unsigned int i_u, const unsigned int i_v)
 	{
 		if (i_u < 0 || i_u >= m_NumOfVertex || i_v < 0 || i_v >= m_NumOfVertex)
 			throw SimDirGraphExceptions("Invalid argument - Vertex ID doesn't exist.");

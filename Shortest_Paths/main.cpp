@@ -17,7 +17,7 @@ void main() {
 	if (!graphFile)
 		throw "File doesnt exist";
 
-	SimpleDirectedGraph* G = new AdjacencyMatrix;
+	SimpleDirectedGraph* G = new AdjacencyList;
 	int size;
 	graphFile >> size;
 	G->MakeEmptyGraph(size);
@@ -27,31 +27,34 @@ void main() {
 	to--;
 	while (!graphFile.eof())
 	{
-		int u, v, weight;
+		int u, v;
+		float weight;
 		graphFile >> u >> v >> weight;
 		G->AddEdge(u - 1, v - 1, weight);
 	}
 	graphFile.close();
 	
-	/*
-	G->MakeEmptyGraph(6);
-	G->AddEdge(0, 1, 16);
-	G->AddEdge(0, 2, 13);
-	G->AddEdge(1, 2, 10);
-	G->AddEdge(2, 1, 4);
-	G->AddEdge(1, 3, 12);
-	G->AddEdge(3, 2, 9);
-	G->AddEdge(2, 4, 14);
-	G->AddEdge(4, 3, 7);
-	G->AddEdge(4, 5, 4);
-	G->AddEdge(3, 5, 20);
-	*/
+
+	PriorityQueue<SimpleDirectedGraph::Vertex*>* Q1 = new ArrayPriorityQueue<SimpleDirectedGraph::Vertex*>;
+	PriorityQueue<SimpleDirectedGraph::Vertex*>* Q2 = new HeapPriorityQueue<SimpleDirectedGraph::Vertex*>;
 
 	ShortPath* S = new BelmanFord(G);
-	int shortpath = S->ShortestPath(from, to);
-	cout << "Short Path: " << shortpath << endl;
+	float shortpath = S->ShortestPath(from, to);
+	cout << "Short Path Ford: " << shortpath << endl;
+	delete S;
+
+	S = new Dijkstra(G, Q1);
+	shortpath = S->ShortestPath(from, to);
+	cout << "Short Path Dijkstra array: " << shortpath << endl;
+	delete S;
+
+	S = new Dijkstra(G, Q2);
+	shortpath = S->ShortestPath(from, to);
+	cout << "Short Path Dijkstra heap: " << shortpath << endl;
 
 	delete S;
+	delete Q1;
+	delete Q2;
 	delete G;
 	}
 	catch (exception& exp)
