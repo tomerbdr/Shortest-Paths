@@ -17,9 +17,50 @@ namespace ShortestPaths
 	template <class T>
 	struct Pair
 	{
+	private:
+		struct Value
+		{
+			int m_Value;
+			bool isInfinity;
+			Value() { isInfinity = true; m_Value = 0; }
+			Value(int i_Num) { isInfinity = false; m_Value = i_Num; }
+			void operator=(int i_Num) { isInfinity = false; m_Value = i_Num; }
+			bool operator >(int i_Num) { return (isInfinity || m_Value > i_Num); }
+			bool operator <(int i_Num) { return (!isInfinity && m_Value < i_Num); }
+			bool operator ==(int i_Num) { return (!isInfinity && m_Value == i_Num); }
+			bool operator >=(int i_Num) { return (this->operator>(i_Num) || this->operator==(i_Num)); }
+			bool operator <=(int i_Num) { return (this->operator<(i_Num) || this->operator==(i_Num)); }
+			bool operator >(Value& i_Other) 
+			{
+				bool res;
+				if (i_Other.isInfinity)
+					res = false;
+				else if (this->isInfinity)
+					res = true;
+				else
+					res = this->m_Value > i_Other.m_Value;
+				
+				return res;
+			}
+			bool operator <(Value& i_Other)
+			{
+				bool res;
+				if (this->isInfinity)
+					res = false;
+				else if (i_Other.isInfinity)
+					res = true;
+				else
+					res = this->m_Value < i_Other.m_Value;
+
+				return res;
+			}
+			operator int() { return m_Value; }
+		};
+
 	public:
-		int m_Key;
+		Value m_Key;
 		T m_Data;
+		Pair() { /*m_Key = 0;*/ m_Data = 0; } //TODO FIX
 		Pair(const int i_Key, const T i_Data) : m_Key(i_Key), m_Data(i_Data) {}
 		Pair(const Pair& i_Other) : Pair(i_Other.m_Key, i_Other.m_Data) {}
 	};
@@ -84,7 +125,7 @@ namespace ShortestPaths
 	};
 
 	template <class T>
-	class ArrayPriorityQueue : PriorityQueue<T>
+	class ArrayPriorityQueue : public PriorityQueue<T>
 	{
 	private:
 		unsigned int m_MinIndex = 0;
@@ -93,14 +134,12 @@ namespace ShortestPaths
 			if (this->m_CurrentSize == 0) /*Empty*/
 				throw PriorityQueueExceptions("Quence is empty.");
 
-			int minKey = this->m_Array[0]->m_Key;
 			int minIndex = 0;
 
 			for (int i = 0; i < this->m_CurrentSize; i++)
 			{
-				if ((*(this->m_Array[i])).m_Key < minKey)
+				if (this->m_Array[i]->m_Key < this->m_Array[minIndex]->m_Key)
 				{
-					minKey = (*(this->m_Array[i])).m_Key;
 					minIndex = i;
 				}
 			}
@@ -141,7 +180,7 @@ namespace ShortestPaths
 		}
 		virtual void DecreaseKey(const unsigned int i_Place, const int i_NewKey) override
 		{
-			if (i_Place >= this->m_CurrentSize || this->m_CurrIndex[i_Place] == NOT_IN_QUEUE)
+			if (i_Place >= this->m_MaxSize || this->m_CurrIndex[i_Place] == NOT_IN_QUEUE)
 				throw PriorityQueueExceptions("Invalid argument - Object doesnt exist in the queue.");
 
 			unsigned int currentIndex = this->getCurrentIndex(i_Place); // Get current index of the object that was initial in the i_Place index
@@ -153,7 +192,7 @@ namespace ShortestPaths
 	};
 
 	template <class T>
-	class HeapPriorityQueue : PriorityQueue<T>
+	class HeapPriorityQueue : public PriorityQueue<T>
 	{
 	private:
 		static const unsigned int leftChild(int i_NodeIndex) { return i_NodeIndex * 2 + 1; }
