@@ -1,8 +1,9 @@
 #pragma once
 #include <iostream>
+#define NOT_IN_QUEUE -1 // MUSE BE A NEGATIVE NUMBER 
 using namespace std;
 
-namespace ShortestPaths 
+namespace ShortestPaths
 {
 	class PriorityQueueExceptions : exception
 	{
@@ -19,8 +20,8 @@ namespace ShortestPaths
 	public:
 		int m_Key;
 		T m_Data;
-		Pair(const int i_Key,const T i_Data) : m_Key(i_Key) ,m_Data(i_Data) {}
-		Pair(const Pair& i_Other) : Pair(i_Other.m_Key,i_Other.m_Data) {}
+		Pair(const int i_Key, const T i_Data) : m_Key(i_Key), m_Data(i_Data) {}
+		Pair(const Pair& i_Other) : Pair(i_Other.m_Key, i_Other.m_Data) {}
 	};
 
 	/**** An abstract class which use as a BASE class to different data structores of Min Prioty Queue****/
@@ -29,13 +30,51 @@ namespace ShortestPaths
 	{
 	protected:
 		Pair<T>** m_Array;
+		int* m_CurrIndex;
+		int** m_PtrToCurrIndex;
 		unsigned int m_MaxSize;
 		unsigned int m_CurrentSize;
 
+		void init(Pair<T>* i_Array, const unsigned int i_Size)
+		{
+			this->m_MaxSize = i_Size;
+			this->m_CurrentSize = 0;
+			this->m_Array = new Pair<T> * [this->m_MaxSize];
+			this->m_CurrIndex = new int[this->m_MaxSize];
+			this->m_PtrToCurrIndex = new int* [this->m_MaxSize];
+
+			for (int i = 0; i < i_Size; i++)
+			{
+				this->m_Array[i] = &(i_Array[i]);
+				this->m_CurrIndex[i] = i; // Currently all the objects in the array are in the starting position
+				this->m_PtrToCurrIndex[i] = &(this->m_CurrIndex[i]); // Point to the node of position
+				this->m_CurrentSize++;
+			}
+		}
+		unsigned int getCurrentIndex(const unsigned int i_InitialInd) { return m_CurrIndex[i_InitialInd]; }
+		void swap(const unsigned int i_FirstInd, const unsigned int i_SecondInd)
+		{
+			// Swap
+			Pair<T>* tempPair = m_Array[i_FirstInd];
+			int* tempPtrToInd = m_PtrToCurrIndex[i_FirstInd];
+
+			m_Array[i_FirstInd] = m_Array[i_SecondInd];
+			m_PtrToCurrIndex[i_FirstInd] = m_PtrToCurrIndex[i_SecondInd];
+
+			m_Array[i_SecondInd] = tempPair;
+			m_PtrToCurrIndex[i_SecondInd] = tempPtrToInd;
+
+			// Updating new index
+			if (m_PtrToCurrIndex[i_FirstInd] != nullptr)
+				*(m_PtrToCurrIndex[i_FirstInd]) = i_FirstInd;
+
+			if (m_PtrToCurrIndex[i_SecondInd] != nullptr)
+				*(m_PtrToCurrIndex[i_SecondInd]) = i_SecondInd;
+		}
 	public:
-		PriorityQueue() { m_Array = nullptr;  m_MaxSize = m_CurrentSize = 0; }
+		PriorityQueue() { m_Array = nullptr; m_CurrIndex = nullptr; m_PtrToCurrIndex = nullptr;  m_MaxSize = m_CurrentSize = 0; }
 		PriorityQueue(Pair<T>* i_Array, const unsigned int i_Size) { Build(i_Array, i_Size); }
-		~PriorityQueue() { delete[] m_Array; }
+		~PriorityQueue() { delete[] m_Array; delete[] m_CurrIndex; delete[] m_PtrToCurrIndex; }
 		bool IsEmpty() { return m_CurrentSize == 0; }
 
 		/***Pure Virtual methods***/
@@ -74,16 +113,8 @@ namespace ShortestPaths
 			if (i_Size == 0)
 				throw PriorityQueueExceptions("Invalid argument - Size cannot be 0");
 
-			this->m_CurrentSize = 0;
-			this->m_Array = new Pair<T>*[i_Size];
-			for (int i = 0; i < i_Size; i++)
-			{
-				this->m_Array[i] = &(i_Array[i]);
-				this->m_CurrentSize++;
-			}
-			this->m_MaxSize = i_Size;
+			this->init(i_Array, i_Size); // INIT arrays
 			this->m_MinIndex = findMinIndex();
-
 		}
 		virtual Pair<T>& DeleteMin() override
 		{
@@ -91,29 +122,32 @@ namespace ShortestPaths
 			{
 				throw PriorityQueueExceptions("Quence is empty."); // Empty
 			}
+
 			Pair<T>& pairToDelete = *this->m_Array[m_MinIndex];
+			this->m_Array[this->m_MinIndex] = nullptr;
+			*this->m_PtrToCurrIndex[this->m_MinIndex] = NOT_IN_QUEUE;
+			this->m_PtrToCurrIndex[this->m_MinIndex] = nullptr; // position not rellevant anymore
+
 			if (this->m_MinIndex != this->m_CurrentSize - 1) // The pair to delete is not locate in the last position of the array.
 			{
-				this->m_Array[this->m_MinIndex] = this->m_Array[this->m_CurrentSize - 1];
-				this->m_Array[this->m_CurrentSize - 1] = nullptr;
-			}
-			else
-			{
-				this->m_Array[this->m_MinIndex] = nullptr;
+				this->swap(this->m_MinIndex, this->m_CurrentSize - 1); // Swap between nodes to shrink the array
 			}
 
 			this->m_CurrentSize--;
-			this->m_MinIndex = findMinIndex(); // Finding new min
+			if (this->m_CurrentSize != 0)
+				this->m_MinIndex = findMinIndex(); // Finding new min
+
 			return pairToDelete;
 		}
 		virtual void DecreaseKey(const unsigned int i_Place, const int i_NewKey) override
 		{
-			if (i_Place >= this->m_CurrentSize)
-				throw PriorityQueueExceptions("Invalid argument - Place is out of range.");
+			if (i_Place >= this->m_CurrentSize || this->m_CurrIndex[i_Place] == NOT_IN_QUEUE)
+				throw PriorityQueueExceptions("Invalid argument - Object doesnt exist in the queue.");
 
-			this->m_Array[i_Place]->m_Key = i_NewKey;
+			unsigned int currentIndex = this->getCurrentIndex(i_Place); // Get current index of the object that was initial in the i_Place index
+			this->m_Array[currentIndex]->m_Key = i_NewKey;
 
-			if (i_Place == this->m_MinIndex)
+			if (currentIndex != this->m_MinIndex)
 				this->m_MinIndex = findMinIndex();
 		}
 	};
@@ -124,10 +158,10 @@ namespace ShortestPaths
 	private:
 		static const unsigned int leftChild(int i_NodeIndex) { return i_NodeIndex * 2 + 1; }
 		static const unsigned int rightChild(int i_NodeIndex) { return i_NodeIndex * 2 + 2; }
-		static const int parent(int i_NodeIndex) { return (i_NodeIndex - 1) / 2 ; }
+		static const int parent(int i_NodeIndex) { return (i_NodeIndex - 1) / 2; }
 		void fixHeap(int i_NodeIndex)
 		{
-			unsigned int min,left,right;
+			unsigned int min, left, right;
 			left = leftChild(i_NodeIndex);
 			right = rightChild(i_NodeIndex);
 
@@ -140,9 +174,7 @@ namespace ShortestPaths
 
 			if (min != i_NodeIndex)
 			{
-				Pair<T>* temp = this->m_Array[i_NodeIndex];
-				this->m_Array[i_NodeIndex] = this->m_Array[min];
-				this->m_Array[min] = temp;
+				this->swap(i_NodeIndex, min);
 				fixHeap(min);
 			}
 
@@ -153,14 +185,7 @@ namespace ShortestPaths
 			if (i_Size == 0)
 				throw PriorityQueueExceptions("Invalid argument - Size cannot be 0");
 
-			this->m_CurrentSize = 0;
-			this->m_Array = new Pair<T> * [i_Size];
-			for (int i = 0; i < i_Size; i++)
-			{
-				this->m_Array[i] = &(i_Array[i]);
-				this->m_CurrentSize++;
-			}
-			this->m_MaxSize = i_Size;
+			this->init(i_Array, i_Size); // INIT arrays
 
 			for (int i = (i_Size / 2 - 1); i >= 0; i--)
 				fixHeap(i);
@@ -173,29 +198,35 @@ namespace ShortestPaths
 			}
 
 			Pair<T>& minPair = *this->m_Array[0];
-			this->m_Array[0] = this->m_Array[this->m_CurrentSize - 1];
+			*this->m_PtrToCurrIndex[0] = NOT_IN_QUEUE;
+			this->m_Array[0] = nullptr;
+			this->m_PtrToCurrIndex[0] = nullptr;
+			this->swap(0, this->m_CurrentSize - 1); // Swap with the last object on the array
 			this->m_CurrentSize--;
 			fixHeap(0);
 
 			return minPair;
-		} 
+		}
 		virtual void DecreaseKey(const unsigned int i_Place, const int i_NewKey) override
 		{
-			if (i_Place >= this->m_CurrentSize)
+			if (i_Place >= this->m_MaxSize)
 				throw PriorityQueueExceptions("Invalid argument - Place out of range");
 
-			if (this->m_Array[i_Place]->m_Key <= i_NewKey)
+			unsigned int currentIndex = this->getCurrentIndex(i_Place); // Get the current index of the object that was in the i_Place index intial
+
+			if (currentIndex == NOT_IN_QUEUE)
+				throw PriorityQueueExceptions("Invalid argument - Object had been deleted from queue allready.");
+
+			if (this->m_Array[currentIndex]->m_Key <= i_NewKey)
 				throw PriorityQueueExceptions("New key isn't lower the original key");
 
-			this->m_Array[i_Place]->m_Key = i_NewKey;
-			
-			int currentParentIndex = parent(i_Place);
-			int decreaseKeyIndex = i_Place;
+			this->m_Array[currentIndex]->m_Key = i_NewKey;
+
+			int currentParentIndex = parent(currentIndex);
+			int decreaseKeyIndex = currentIndex;
 			while (currentParentIndex >= 0 && this->m_Array[currentParentIndex]->m_Key > this->m_Array[decreaseKeyIndex]->m_Key)
 			{
-				Pair<T>* temp = this->m_Array[decreaseKeyIndex];
-				this->m_Array[decreaseKeyIndex] = this->m_Array[currentParentIndex];
-				this->m_Array[currentParentIndex] = temp;
+				this->swap(currentParentIndex, decreaseKeyIndex);
 				decreaseKeyIndex = currentParentIndex;
 				currentParentIndex = parent(decreaseKeyIndex);
 			}
