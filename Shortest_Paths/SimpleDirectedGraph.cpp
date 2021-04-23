@@ -5,6 +5,8 @@
 #define PROTECTED
 
 namespace ShortestPaths {
+	unsigned int SimpleDirectedGraph::Vertex::s_currentId;
+
 	/**** Base Class Implementation ****/
 	PUBLIC const SimpleDirectedGraph::Vertex& SimpleDirectedGraph::GetVertex(const int i_u)
 	{
@@ -54,6 +56,7 @@ namespace ShortestPaths {
 			}
 		}
 
+		Vertex::s_currentId = 0;
 		m_VertexArr = new Vertex[m_NumOfVertex]; // Creating array of vertex - each vertex will get ID according to position in the array.
 	}
 	PUBLIC VIRTUAL bool AdjacencyMatrix::IsAdjacent(const int i_u, const int i_v)
@@ -150,6 +153,8 @@ namespace ShortestPaths {
 
 		m_NumOfVertex = i_n;
 		m_GraphListsArr = new list<Pair*>[m_NumOfVertex];
+
+		Vertex::s_currentId = 0;
 		m_VertexArr = new Vertex[m_NumOfVertex]; // Creating array of vertex - each vertex will get ID according to position in the array.
 	}
 	PUBLIC VIRTUAL bool AdjacencyList::IsAdjacent(const int i_u, const int i_v)

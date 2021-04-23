@@ -14,7 +14,8 @@ namespace ShortestPaths {
 			unsigned int m_Id;
 			// Possible to add data field.
 		public:
-			Vertex() { static int currentId = 0; m_Id = currentId++; } 
+			static unsigned int s_currentId; // Will initilaized to 0 when building a new graph
+			Vertex() { m_Id = s_currentId++; } 
 			const unsigned int getId() { return m_Id; }
 		    operator const unsigned int() const { return m_Id; }
 			bool operator ==(Vertex& i_other) { return (m_Id == i_other.getId()); }
