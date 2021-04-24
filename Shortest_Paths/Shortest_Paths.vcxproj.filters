@@ -27,6 +27,9 @@
     <ClInclude Include="ShortPath.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ProgramOperator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SimpleDirectedGraph.cpp">
@@ -36,6 +39,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ShortPath.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ProgramOperator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
