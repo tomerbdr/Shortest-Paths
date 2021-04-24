@@ -60,7 +60,7 @@ namespace ShortestPaths
 	}
 
 /**** BelmanFord ****/
-	VIRTUAL PUBLIC const float BelmanFord::ShortestPath(const int i_u, const int i_v)
+	VIRTUAL PUBLIC const float* BelmanFord::ShortestPath(const int i_u, const int i_v)
 	{
 		if (i_u < 0 || i_u >= m_Graph->GetNumOfVertex() || i_v < 0 || i_v >= m_Graph->GetNumOfVertex())
 		{
@@ -86,11 +86,11 @@ namespace ShortestPaths
 			}
 		}
 
-		return *m_DistanceArr[i_v]; // Return the lowest weight path
+		return m_DistanceArr[i_v]; // Return the lowest weight path
 	}
 
 /**** Dijkstra ****/
-	VIRTUAL PUBLIC const float Dijkstra::ShortestPath(const int i_u, const int i_v)
+	VIRTUAL PUBLIC const float* Dijkstra::ShortestPath(const int i_u, const int i_v)
 	{
 		if (i_u < 0 || i_u >= m_Graph->GetNumOfVertex() || i_v < 0 || i_v >= m_Graph->GetNumOfVertex())
 		{
@@ -125,7 +125,7 @@ namespace ShortestPaths
 		}
 
 		delete[] pairArr;
-		return *m_DistanceArr[i_v];
+		return m_DistanceArr[i_v];
 	}
 }
 

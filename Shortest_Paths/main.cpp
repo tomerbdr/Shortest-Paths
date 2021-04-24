@@ -13,6 +13,7 @@ using namespace std;
 
 using namespace ShortestPaths;
 
+void printShortPath(ShortPath* i_Algorithem, unsigned int i_From, unsigned int i_To, const char* i_InitialMessage);
 void MakeGraphsFromFile(int argc, char** argv, SimpleDirectedGraph* G1, SimpleDirectedGraph* G2, int& fromVertex, int& toVertex);
 int StringToFloat(const char* i_String);
 int StringToFloat(const char* i_String);
@@ -24,28 +25,32 @@ void main(int argc, char** argv)
 		SimpleDirectedGraph* G_List = new AdjacencyList;
 		SimpleDirectedGraph* G_Matrix = new AdjacencyMatrix;
 		int fromVertex, toVertex;
+		int* shortPathPtr;
 		MakeGraphsFromFile(argc, argv, G_List, G_Matrix,fromVertex,toVertex);
 
+		/*Adjacency List*/
 		PriorityQueue<SimpleDirectedGraph::Vertex*>* Q_Array = new ArrayPriorityQueue<SimpleDirectedGraph::Vertex*>;
 		PriorityQueue<SimpleDirectedGraph::Vertex*>* Q_Heap = new HeapPriorityQueue<SimpleDirectedGraph::Vertex*>;
 		Dijkstra Dijkstra_Heap_Adj_List_ShortPath(G_List, Q_Heap);
 		Dijkstra Dijkstra_Array_Adj_List_ShortPath(G_List, Q_Array);
 		BelmanFord Belman_Adj_List_ShortPath(G_List);
 
-		cout << "Adjacency Dijkstra heap " << Dijkstra_Heap_Adj_List_ShortPath.ShortestPath(fromVertex, toVertex) << endl;
-		cout << "Adjacency Dijkstra array " << Dijkstra_Array_Adj_List_ShortPath.ShortestPath(fromVertex, toVertex) << endl;
-		cout << "Adjacency Bellman Ford " << Belman_Adj_List_ShortPath.ShortestPath(fromVertex, toVertex) << endl;
+		printShortPath(&Dijkstra_Heap_Adj_List_ShortPath, fromVertex, toVertex, "Adjacency Dijkstra heap ");
+		printShortPath(&Dijkstra_Array_Adj_List_ShortPath, fromVertex, toVertex, "Adjacency Dijkstra array ");
+		printShortPath(&Belman_Adj_List_ShortPath, fromVertex, toVertex, "Adjacency Bellman Ford ");
 		delete Q_Array;
 		delete Q_Heap;
 
+		/*Adjacency Matrix*/
 		Q_Array = new ArrayPriorityQueue<SimpleDirectedGraph::Vertex*>;
 		Q_Heap = new HeapPriorityQueue<SimpleDirectedGraph::Vertex*>;
 		Dijkstra Dijkstra_Heap_Adj_Matrix_ShortPath(G_Matrix, Q_Heap);
 		Dijkstra Dijkstra_Array_Adj_Matrix_ShortPath(G_Matrix, Q_Array);
 		BelmanFord Belman_Adj_Matrix_ShortPath(G_Matrix);
-		cout << "Matrix Dijkstra heap " << Dijkstra_Heap_Adj_Matrix_ShortPath.ShortestPath(fromVertex, toVertex) << endl;
-		cout << "Matrix Dijkstra array " << Dijkstra_Array_Adj_Matrix_ShortPath.ShortestPath(fromVertex, toVertex) << endl;
-		cout << "Matrix Bellman Ford " << Belman_Adj_Matrix_ShortPath.ShortestPath(fromVertex, toVertex) << endl;
+
+		printShortPath(&Dijkstra_Heap_Adj_Matrix_ShortPath, fromVertex, toVertex, "Matrix Dijkstra heap ");
+		printShortPath(&Dijkstra_Array_Adj_Matrix_ShortPath, fromVertex, toVertex, "Matrix Dijkstra array ");
+		printShortPath(&Belman_Adj_Matrix_ShortPath, fromVertex, toVertex, "Matrix Bellman Ford ");
 
 		delete Q_Array;
 		delete Q_Heap;
@@ -129,4 +134,16 @@ void MakeGraphsFromFile(int argc, char** argv,SimpleDirectedGraph* G1,SimpleDire
 			G2->AddEdge(u - 1, v - 1, weight); //  The program decrease all ids by 1 - from 0 to n-1
 		}
 		inputFile.close();
+}
+
+/* Get ptr to initiliazed shortpath object (Bellman/Dijkstra) and print the shortest path between the input vertices */
+void printShortPath(ShortPath* i_Algorithem, unsigned int i_From, unsigned int i_To, const char* i_InitialMessage)
+{
+	cout << i_InitialMessage;
+	const float* shortPathPtr = i_Algorithem->ShortestPath(i_From, i_To);
+	if (shortPathPtr != nullptr)
+		cout << *shortPathPtr << endl;
+	else
+		cout << "No path exist." << endl;
+	
 }
