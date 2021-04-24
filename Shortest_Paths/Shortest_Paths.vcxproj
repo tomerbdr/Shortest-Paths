@@ -139,6 +139,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="ProgramOperator.h" />
     <ClInclude Include="PriorityQueue.h" />
     <ClInclude Include="ShortPath.h" />
     <ClInclude Include="SimpleDirectedGraph.h" />
@@ -146,6 +147,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ProgramOperator.cpp" />
     <ClCompile Include="ShortPath.cpp" />
     <ClCompile Include="SimpleDirectedGraph.cpp" />
   </ItemGroup>
