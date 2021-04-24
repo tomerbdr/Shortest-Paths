@@ -4,7 +4,8 @@
 using namespace std;
 
 namespace ShortestPaths {
-	/**** An abstract class which use as a BASE class to different data structores of Simple directed graphs****/
+	/**** An Abstract class which use as a BASE class to Matrix and List adjacency - use for polymorphisem ****/
+
 	class SimpleDirectedGraph 
 	{
 	public:
@@ -12,11 +13,11 @@ namespace ShortestPaths {
 		{
 		private:
 			unsigned int m_Id;
-			// Possible to add data field.
 		public:
-			Vertex() { static int currentId = 0; m_Id = currentId++; } 
+			static unsigned int s_currentId; // Will initilaized to 0 when building a new graph
+			Vertex() { m_Id = s_currentId++; } 
 			const unsigned int getId() { return m_Id; }
-		    operator const unsigned int() const { return m_Id; }
+		    operator const unsigned int() const { return m_Id; } // Parse to int
 			bool operator ==(Vertex& i_other) { return (m_Id == i_other.getId()); }
 		};
 		class Edge
@@ -29,7 +30,7 @@ namespace ShortestPaths {
 			Edge(const Vertex& i_From,const Vertex& i_To,const float i_VertexWeight) : m_From(i_From), m_To(i_To) , m_Weight(i_VertexWeight) {}
 			const Vertex& getFrom() { return m_From; }
 			const Vertex& getTo() { return m_To; }
-			const float getWeight() { return m_Weight; }
+			const float getWeight() { return m_Weight; } // Parse to float
 		};
 	/*Fields*/
 	protected:

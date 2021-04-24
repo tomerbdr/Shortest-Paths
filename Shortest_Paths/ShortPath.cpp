@@ -8,7 +8,7 @@
 namespace ShortestPaths
 {
 /**** ShortPath - BASE class *****/
-	PUBLIC ShortPath::~ShortPath()
+	ShortPath::~ShortPath()
 	{
 		if (m_ParentsArr != nullptr)
 			delete[] m_ParentsArr;
@@ -33,8 +33,8 @@ namespace ShortestPaths
 			isRelaxed = false;
 		else if ((m_DistanceArr[i_v] == nullptr) || (*m_DistanceArr[i_v] > *m_DistanceArr[i_u] + edgeWeight))
 		{
-			if (m_DistanceArr[i_v] == nullptr)
-				m_DistanceArr[i_v] = new float;
+			if (m_DistanceArr[i_v] == nullptr) // Nullptr <==> Infinity (Not revealed)
+				m_DistanceArr[i_v] = new float; 
 
 			*m_DistanceArr[i_v] = *m_DistanceArr[i_u] + edgeWeight;
 			m_ParentsArr[i_v] = const_cast<SimpleDirectedGraph::Vertex*>(&(m_Graph->GetVertex(i_u)));
@@ -43,15 +43,17 @@ namespace ShortestPaths
 
 		return isRelaxed;
 	}
+
+	// Alocate distance and parents arrays, initilaize all vertex to nullptr(equal to Infinty) except source vertex.
 	PROTECTED void ShortPath::init(const int i_u)
 	{
 		m_DistanceArr = new float* [m_Graph->GetNumOfVertex()];
 		m_ParentsArr = new SimpleDirectedGraph::Vertex * [m_Graph->GetNumOfVertex()];
 
-		for (int i = 0; i < m_Graph->GetNumOfVertex(); i++) // INIT
+		for (int i = 0; i < m_Graph->GetNumOfVertex(); i++)
 		{
-			m_DistanceArr[i] = nullptr;
-			m_ParentsArr[i] = nullptr;
+			m_DistanceArr[i] = nullptr; //  <==> Infinity
+			m_ParentsArr[i] = nullptr; 
 		}
 
 		m_DistanceArr[i_u] = new float(0);
@@ -72,7 +74,7 @@ namespace ShortestPaths
 			for (int j = 0; j < m_Graph->GetNumOfVertex(); j++)
 			{
 				const SimpleDirectedGraph::Vertex& currentFromVertex = m_Graph->GetVertex(j);
-				list<const SimpleDirectedGraph::Vertex*>* adjVertexList = m_Graph->GetAdjList(currentFromVertex);
+				list<const SimpleDirectedGraph::Vertex*>* adjVertexList = m_Graph->GetAdjList(currentFromVertex); // Get current vertex adj vertex list
 
 				for (auto itr = adjVertexList->begin(); itr != adjVertexList->end(); itr++)
 				{
@@ -84,11 +86,10 @@ namespace ShortestPaths
 			}
 		}
 
-		return *m_DistanceArr[i_v];
+		return *m_DistanceArr[i_v]; // Return the lowest weight path
 	}
 
 /**** Dijkstra ****/
-
 	VIRTUAL PUBLIC const float Dijkstra::ShortestPath(const int i_u, const int i_v)
 	{
 		if (i_u < 0 || i_u >= m_Graph->GetNumOfVertex() || i_v < 0 || i_v >= m_Graph->GetNumOfVertex())
@@ -97,11 +98,11 @@ namespace ShortestPaths
 		}
 
 		this->init(i_u); //INIT
-		Pair<SimpleDirectedGraph::Vertex*>* pairArr = new Pair<SimpleDirectedGraph::Vertex*>[m_Graph->GetNumOfVertex()];
+		Pair<SimpleDirectedGraph::Vertex*>* pairArr = new Pair<SimpleDirectedGraph::Vertex*>[m_Graph->GetNumOfVertex()]; // Building array of pairs <Key,Data> to the queue
 		for (int i = 0; i < m_Graph->GetNumOfVertex(); i++)
 		{
 			pairArr[i].m_Data = const_cast<SimpleDirectedGraph::Vertex*>(&(m_Graph->GetVertex(i)));
-			if (m_DistanceArr[i] != nullptr) // All the keys are initialized to Infinity
+			if (m_DistanceArr[i] != nullptr) // All the keys are initialized to Infinity excepet start vertex.
 				pairArr[i].m_Key = *m_DistanceArr[i]; 
 		}
 
@@ -109,7 +110,7 @@ namespace ShortestPaths
 
 		while (!m_Q->IsEmpty())
 		{
-			SimpleDirectedGraph::Vertex& u = *(m_Q->DeleteMin().m_Data);
+			SimpleDirectedGraph::Vertex& u = *(m_Q->DeleteMin().m_Data); // Dequence the lowest weight vertex from the queue
 			list<const SimpleDirectedGraph::Vertex*>* adjVertexList = m_Graph->GetAdjList(u);
 
 			for (auto itr = adjVertexList->begin(); itr != adjVertexList->end(); itr++)
