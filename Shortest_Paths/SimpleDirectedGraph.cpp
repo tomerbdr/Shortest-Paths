@@ -5,9 +5,12 @@
 #define PROTECTED
 
 namespace ShortestPaths {
-	unsigned int SimpleDirectedGraph::Vertex::s_currentId;
+	unsigned int SimpleDirectedGraph::Vertex::s_currentId; // Declaration of static member
 
-	/**** Base Class Implementation ****/
+	/**********************************************/
+	/**** Base Class Implementation ***************/
+	/**********************************************/
+
 	PUBLIC const SimpleDirectedGraph::Vertex& SimpleDirectedGraph::GetVertex(const int i_u)
 	{
 		if (i_u < 0 || i_u >= m_NumOfVertex)
@@ -16,8 +19,12 @@ namespace ShortestPaths {
 		}
 		return m_VertexArr[i_u];
 	}
-	/**** Adjacency Matrix Graph Implementation ****/
-	PUBLIC AdjacencyMatrix::~AdjacencyMatrix()
+
+	/************************************************/
+	/**** Adjacency Matrix Graph Implementation *****/
+	/************************************************/
+
+	AdjacencyMatrix::~AdjacencyMatrix()
 	{
 		if (m_VertexArr != nullptr)
 			delete[] m_VertexArr;
@@ -38,6 +45,8 @@ namespace ShortestPaths {
 			delete[] m_GraphMatrix;
 		}
 	}
+
+	// Make an empty graph with i_n vertices - All vertices created and saved array.
 	PUBLIC VIRTUAL void AdjacencyMatrix::MakeEmptyGraph(const int i_n)
 	{
 		if (i_n <= 0)
@@ -59,6 +68,7 @@ namespace ShortestPaths {
 		Vertex::s_currentId = 0;
 		m_VertexArr = new Vertex[m_NumOfVertex]; // Creating array of vertex - each vertex will get ID according to position in the array.
 	}
+	
 	PUBLIC VIRTUAL bool AdjacencyMatrix::IsAdjacent(const int i_u, const int i_v)
 	{
 		if (i_u < 0 || i_u >= m_NumOfVertex || i_v < 0 || i_v >= m_NumOfVertex)
@@ -68,6 +78,8 @@ namespace ShortestPaths {
 
 		return (m_GraphMatrix[i_u][i_v] == nullptr ? false : true);
 	}
+
+	// Allocate linked list of vertex adjacent vertices - Dealloc the list in responsiblity of user !!
 	PUBLIC VIRTUAL list<const SimpleDirectedGraph::Vertex*>* AdjacencyMatrix::GetAdjList(const int i_u)
 	{
 		if (i_u < 0 || i_u >= m_NumOfVertex)
@@ -86,6 +98,7 @@ namespace ShortestPaths {
 
 		return adjList;
 	}
+
 	PUBLIC VIRTUAL void AdjacencyMatrix::AddEdge(const int i_u, const int i_v, const float i_Weight)
 	{
 		if (i_u < 0 || i_u >= m_NumOfVertex || i_v < 0 || i_v >= m_NumOfVertex)
@@ -102,6 +115,7 @@ namespace ShortestPaths {
 
 		m_GraphMatrix[i_u][i_v] = new Edge(m_VertexArr[i_u], m_VertexArr[i_v], i_Weight);
 	}
+
 	PUBLIC VIRTUAL void AdjacencyMatrix::RemoveEdge(const int i_u, const int i_v)
 	{
 		if (i_u < 0 || i_u >= m_NumOfVertex || i_v < 0 || i_v >= m_NumOfVertex)
@@ -112,6 +126,7 @@ namespace ShortestPaths {
 		delete m_GraphMatrix[i_u][i_v];
 		m_GraphMatrix[i_u][i_v] = nullptr;
 	}
+
 	PRIVATE VIRTUAL float AdjacencyMatrix::getEdgeWeight(const unsigned int i_u, const unsigned int i_v)
 	{
 		if (i_u < 0 || i_u >= m_NumOfVertex || i_v < 0 || i_v >= m_NumOfVertex)
@@ -121,9 +136,12 @@ namespace ShortestPaths {
 
 		return m_GraphMatrix[i_u][i_v]->getWeight();
 	}
-	/**** Adjacency List Graph Implementation ****/
 
-	PUBLIC AdjacencyList::~AdjacencyList()
+	/**********************************************/
+	/**** Adjacency List Graph Implementation *****/
+	/**********************************************/
+
+	AdjacencyList::~AdjacencyList()
 	{
 		if (m_VertexArr != nullptr)
 			delete[] m_VertexArr;
@@ -144,6 +162,8 @@ namespace ShortestPaths {
 			delete[] m_GraphListsArr;
 		}
 	}
+
+	// Make an empty graph with i_n vertices - All vertices created and saved array.
 	PUBLIC VIRTUAL void AdjacencyList::MakeEmptyGraph(const int i_n)
 	{
 		if (i_n <= 0)
@@ -157,6 +177,7 @@ namespace ShortestPaths {
 		Vertex::s_currentId = 0;
 		m_VertexArr = new Vertex[m_NumOfVertex]; // Creating array of vertex - each vertex will get ID according to position in the array.
 	}
+
 	PUBLIC VIRTUAL bool AdjacencyList::IsAdjacent(const int i_u, const int i_v)
 	{
 		if (i_u < 0 || i_u >= m_NumOfVertex || i_v < 0 || i_v >= m_NumOfVertex)
@@ -172,6 +193,8 @@ namespace ShortestPaths {
 
 		return isAdjacent;
 	}
+
+	// Allocate linked list of vertex adjacent vertices - Dealloc the list in responsiblity of user !!
 	PUBLIC VIRTUAL list<const SimpleDirectedGraph::Vertex*>* AdjacencyList::GetAdjList(const int i_u)
 	{
 		if (i_u < 0 || i_u >= m_NumOfVertex)
@@ -189,6 +212,7 @@ namespace ShortestPaths {
 
 		return adjList;
 	}
+
 	PUBLIC VIRTUAL void AdjacencyList::AddEdge(const int i_u, const int i_v, const float i_Weight)
 	{
 		if (i_u < 0 || i_u >= m_NumOfVertex || i_v < 0 || i_v >= m_NumOfVertex)
@@ -207,6 +231,7 @@ namespace ShortestPaths {
 		Pair* pairToAdd = new Pair(m_VertexArr[i_v], *newEdge); // ~AdjacencyList() makes dealloc.
 		m_GraphListsArr[i_u].push_back(pairToAdd);
 	}
+
 	PUBLIC VIRTUAL void AdjacencyList::RemoveEdge(const int i_u, const int i_v)
 	{
 		if (i_u < 0 || i_u >= m_NumOfVertex || i_v < 0 || i_v >= m_NumOfVertex)
@@ -223,6 +248,8 @@ namespace ShortestPaths {
 		/*Passing loop means edge doesnt exist*/
 		throw SimDirGraphExceptions("Edge doesn't exist");
 	}
+
+	// Return pair of <Vertex,Weight> from adjacent list of i_FromVertex, if i_ToVertex doesnt exist(Vertices are not adjacent) nullptr will return. 
 	PRIVATE AdjacencyList::Pair* AdjacencyList::searchPairInListByVertex(const Vertex& i_FromVertex,const Vertex& i_ToVertex)
 	{
 		for (auto i = m_GraphListsArr[i_FromVertex].begin(); i != m_GraphListsArr[i_FromVertex].end(); i++)
@@ -235,6 +262,7 @@ namespace ShortestPaths {
 
 		return nullptr; // Pair didnt found
 	}
+
 	PRIVATE VIRTUAL float AdjacencyList::getEdgeWeight(const unsigned int i_u, const unsigned int i_v)
 	{
 		if (i_u < 0 || i_u >= m_NumOfVertex || i_v < 0 || i_v >= m_NumOfVertex)

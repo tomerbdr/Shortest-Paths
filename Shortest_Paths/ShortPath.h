@@ -4,7 +4,7 @@
 #include "list.h"
 
 namespace ShortestPaths {
-
+/* ShortPath is an Abstarct Base Class to Bellman and Dijkstra - Conatins the similar methods and fields */
 	class ShortPath
 	{
 	protected:

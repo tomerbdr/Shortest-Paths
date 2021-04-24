@@ -14,59 +14,9 @@ using namespace std;
 using namespace ShortestPaths;
 
 void MakeGraphsFromFile(int argc, char** argv, SimpleDirectedGraph* G1, SimpleDirectedGraph* G2, int& fromVertex, int& toVertex);
+int StringToFloat(const char* i_String);
+int StringToFloat(const char* i_String);
 
-//void main() {
-//	try
-//	{
-//	fstream graphFile("Graph.txt");
-//	if (!graphFile)
-//		throw "File doesnt exist";
-//
-//	SimpleDirectedGraph* G = new AdjacencyList;
-//	int size;
-//	graphFile >> size;
-//	G->MakeEmptyGraph(size);
-//	int from, to;
-//	graphFile >> from >> to;
-//	from--;
-//	to--;
-//	while (!graphFile.eof())
-//	{
-//		int u, v;
-//		float weight;
-//		graphFile >> u >> v >> weight;
-//		G->AddEdge(u - 1, v - 1, weight);
-//	}
-//	graphFile.close();
-//	
-//
-//	PriorityQueue<SimpleDirectedGraph::Vertex*>* Q1 = new ArrayPriorityQueue<SimpleDirectedGraph::Vertex*>;
-//	PriorityQueue<SimpleDirectedGraph::Vertex*>* Q2 = new HeapPriorityQueue<SimpleDirectedGraph::Vertex*>;
-//
-//	ShortPath* S = new BelmanFord(G);
-//	float shortpath = S->ShortestPath(from, to);
-//	cout << "Short Path Ford: " << shortpath << endl;
-//	delete S;
-//
-//	S = new Dijkstra(G, Q1);
-//	shortpath = S->ShortestPath(from, to);
-//	cout << "Short Path Dijkstra array: " << shortpath << endl;
-//	delete S;
-//
-//	S = new Dijkstra(G, Q2);
-//	shortpath = S->ShortestPath(from, to);
-//	cout << "Short Path Dijkstra heap: " << shortpath << endl;
-//
-//	delete S;
-//	delete Q1;
-//	delete Q2;
-//	delete G;
-//	}
-//	catch (exception& exp)
-//	{
-//		cout << "Exception: " << exp.what() << endl;
-//	}
-//}
 void main(int argc, char** argv)
 {
 	try
@@ -104,11 +54,37 @@ void main(int argc, char** argv)
 	}
 	catch (exception& i_Exc)
 	{
-		cout << "Invalid input" << endl;
+		cout << "Invalid input" << endl << i_Exc.what() << endl;
 		exit(1);
 	}
 }
+// Parse string to int - exception will be throwen if the string is not exaclly a integer
+int StringToInt(const char* i_String)
+{
+	if (i_String == nullptr)
+		throw invalid_argument("Error - empty string.");
 
+	size_t idx;
+	int res = stoi(i_String, &idx);
+	if (idx != strlen(i_String))
+		throw invalid_argument("Error - String is not an integer.");
+	return res;
+}
+
+// Parse string to float - exception will be throwen if the string is not exaclly a float
+int StringToFloat(const char* i_String)
+{
+	if (i_String == nullptr)
+		throw invalid_argument("Error - empty string.");
+	size_t idx;
+	float res = stof(i_String, &idx);
+	if (idx != strlen(i_String))
+		throw invalid_argument("Error - String is not an float.");
+	return res;
+}
+
+// Get command line arguments (Conatin file name), two empty graphs, start and dest verteices. Build the graphs and set the verteices.
+// In case of bad input invalid arguments exception will throwen.
 void MakeGraphsFromFile(int argc, char** argv,SimpleDirectedGraph* G1,SimpleDirectedGraph* G2,int& fromVertex,int& toVertex)
 {
 		if (argc != NUM_OF_ARGUMENTS)
@@ -120,50 +96,37 @@ void MakeGraphsFromFile(int argc, char** argv,SimpleDirectedGraph* G1,SimpleDire
 		if (!inputFile)
 			throw invalid_argument("Error - File doesnt exist");
 
-		size_t idx;
 		string lineReader;
 		inputFile >> lineReader;
-		int graphSize = stoi(lineReader,&idx);
-		if (idx != lineReader.length())
-			throw invalid_argument("Error - Invalid input");
+		int graphSize = StringToInt(lineReader.c_str()); // Num of vertex
 		inputFile >> lineReader;
-		fromVertex = stoi(lineReader,&idx);
-		if (idx != lineReader.length())
-			throw invalid_argument("Error - Invalid input");
+		fromVertex = StringToInt(lineReader.c_str()); // Source vertex
 		inputFile >> lineReader;
-		toVertex = stoi(lineReader,&idx);
-		if (idx != lineReader.length())
-			throw invalid_argument("Error - Invalid input");
-		fromVertex--;
-		toVertex--;
+		toVertex = StringToInt(lineReader.c_str()); // Destination vertex
+		fromVertex--; // The user vertex id begin from 1 to n
+		toVertex--;  //  The program decrease all ids by 1 - from 0 to n-1
 		G1->MakeEmptyGraph(graphSize);
 		G2->MakeEmptyGraph(graphSize);
 		inputFile.get();
 
-		while (!inputFile.eof())
+		while (!inputFile.eof()) // Reading edges input
 		{
 			int u, v;
 			float weight;
 			getline(inputFile,lineReader);
 			char* split = strtok(const_cast<char*>(lineReader.c_str()), " ");
-			u = stoi(split,&idx);
-			if (idx != strlen(split))
-				throw invalid_argument("Error - Invalid input");
+			u = StringToInt(split);
 			split = strtok(NULL, " ");
-			v = stoi(split,&idx);
-			if (idx != strlen(split))
-				throw invalid_argument("Error - Invalid input");
+			v = StringToInt(split);
 			split = strtok(NULL, " ");
-			weight = stof(split,&idx);
-			if (idx != strlen(split))
-				throw invalid_argument("Error - Invalid input");
+			weight = StringToFloat(split);
 			split = strtok(NULL, " ");
 
-			if (split != nullptr)
-				throw invalid_argument("Invalid input");
+			if (split != nullptr) // Remain input in the current line
+				throw invalid_argument("Error - To many arguments in line.");
 
-			G1->AddEdge(u - 1, v - 1, weight);
-			G2->AddEdge(u - 1, v - 1, weight);
+			G1->AddEdge(u - 1, v - 1, weight);  // The user vertex id begin from 1 to n
+			G2->AddEdge(u - 1, v - 1, weight); //  The program decrease all ids by 1 - from 0 to n-1
 		}
 		inputFile.close();
 }

@@ -14,10 +14,13 @@ namespace ShortestPaths
 		virtual const char* what() const { return m_Msg.c_str(); }
 	};
 
+	// Pair of <Key,Data> 
 	template <class T>
 	struct Pair
 	{
 	private:
+		// This struct use exactly as float - with improve of define Infinty value.
+		// Initially an instance of the class initiliazed to Infinity until get a value.
 		struct Value
 		{
 			float m_Value;
@@ -60,7 +63,7 @@ namespace ShortestPaths
 	public:
 		Value m_Key;
 		T m_Data;
-		Pair() { /*m_Key = 0;*/ m_Data = 0; } //TODO FIX
+		Pair() { m_Data = 0; }
 		Pair(const float i_Key, const T i_Data) : m_Key(i_Key), m_Data(i_Data) {}
 		Pair(const Pair& i_Other) : Pair(i_Other.m_Key, i_Other.m_Data) {}
 	};
@@ -71,11 +74,12 @@ namespace ShortestPaths
 	{
 	protected:
 		Pair<T>** m_Array;
-		int* m_CurrIndex;
-		int** m_PtrToCurrIndex;
+		int* m_CurrIndex; // Conatin the current position of all array members
+		int** m_PtrToCurrIndex; 
 		unsigned int m_MaxSize;
 		unsigned int m_CurrentSize;
 
+		/* Get an array of pairs and initilize the queue */
 		void init(Pair<T>* i_Array, const unsigned int i_Size)
 		{
 			this->m_MaxSize = i_Size;
@@ -92,7 +96,11 @@ namespace ShortestPaths
 				this->m_CurrentSize++;
 			}
 		}
+
+		/* Get the current index of the object that was in the i_InitialInd place at the init stage */
 		unsigned int getCurrentIndex(const unsigned int i_InitialInd) { return m_CurrIndex[i_InitialInd]; }
+
+		/* Swaps between objects in the array - Updating also currentIndex array */
 		void swap(const unsigned int i_FirstInd, const unsigned int i_SecondInd)
 		{
 			// Swap
@@ -112,6 +120,7 @@ namespace ShortestPaths
 			if (m_PtrToCurrIndex[i_SecondInd] != nullptr)
 				*(m_PtrToCurrIndex[i_SecondInd]) = i_SecondInd;
 		}
+
 	public:
 		PriorityQueue() { m_Array = nullptr; m_CurrIndex = nullptr; m_PtrToCurrIndex = nullptr;  m_MaxSize = m_CurrentSize = 0; }
 		PriorityQueue(Pair<T>* i_Array, const unsigned int i_Size) { Build(i_Array, i_Size); }
@@ -129,6 +138,8 @@ namespace ShortestPaths
 	{
 	private:
 		unsigned int m_MinIndex = 0;
+
+		// Returning the index of the min key in the queue
 		unsigned int findMinIndex()
 		{
 			if (this->m_CurrentSize == 0) /*Empty*/
@@ -146,6 +157,7 @@ namespace ShortestPaths
 
 			return minIndex;
 		}
+
 	public:
 		virtual void Build(Pair<T>* i_Array, const unsigned int i_Size) override
 		{
