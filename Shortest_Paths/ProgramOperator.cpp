@@ -1,9 +1,11 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "ProgramOperator.h"
+#include <chrono>
+#include <iomanip>
 #define PUBLIC
 #define PRIVATE
 #define STATIC
-#define NUM_OF_ARGUMENTS 2
+#define NUM_OF_ARGUMENTS 3
 
 namespace ShortestPaths
 {
@@ -40,6 +42,9 @@ namespace ShortestPaths
 		{
 			throw invalid_argument("Error - Invalid num of arguments.");
 		}
+
+		ofstream timeFile(argv[2], ofstream::trunc); // Trunc time file for mesuare current function run time
+		timeFile.close();
 
 		fstream inputFile(argv[1]);
 		if (!inputFile)
@@ -81,14 +86,43 @@ namespace ShortestPaths
 	}
 
 	/* Get ptr to initiliazed shortpath object (Bellman/Dijkstra) and print the shortest path between the input vertices */
-	PUBLIC STATIC void ProgramOperator::printShortPath(ShortPath* i_Algorithem, unsigned int i_From, unsigned int i_To, const char* i_InitialMessage)
+	PUBLIC STATIC void ProgramOperator::printShortPath(ShortPath* i_Algorithem, unsigned int i_From, unsigned int i_To, const char* i_InitialMessage, const char* i_TimeFile)
 	{
 		cout << i_InitialMessage;
-		const float* shortPathPtr = i_Algorithem->ShortestPath(i_From, i_To);
+		const float* shortPathPtr = runTimeMesuare(i_InitialMessage, i_Algorithem, i_From, i_To, i_TimeFile);
 		if (shortPathPtr != nullptr)
 			cout << *shortPathPtr << endl;
 		else
 			cout << "No path exist." << endl;
 
+	}
+
+	PRIVATE STATIC const float* ProgramOperator::runTimeMesuare(const char* i_String, ShortPath* i_Algorithem, unsigned int i_From, unsigned int i_To, const char* i_TimeFile)
+	{
+		const float* res;
+
+		auto start = chrono::high_resolution_clock::now();
+
+		// unsync the I/O of C and C++. 
+		ios_base::sync_with_stdio(false);
+
+		res = i_Algorithem->ShortestPath(i_From,i_To); // Here you put the name of the function you wish to measure
+
+		auto end = chrono::high_resolution_clock::now();
+
+		// Calculating total time taken by the program. 
+		double time_taken =
+			chrono::duration_cast<chrono::nanoseconds>(end - start).count();
+
+		time_taken *= 1e-9;
+
+		ofstream myfile(i_TimeFile,ios_base::app); // The name of the file which is in argv[2]
+
+		myfile << i_String << fixed
+			<< time_taken << setprecision(9);
+		myfile << " sec" << endl;
+		myfile.close();
+
+		return res;
 	}
 }
