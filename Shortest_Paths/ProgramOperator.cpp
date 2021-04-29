@@ -89,7 +89,7 @@ namespace ShortestPaths
 	PUBLIC STATIC void ProgramOperator::printShortPath(ShortPath* i_Algorithem, unsigned int i_From, unsigned int i_To, const char* i_InitialMessage, const char* i_TimeFile)
 	{
 		cout << i_InitialMessage;
-		const float* shortPathPtr = runTimeMesuare(i_InitialMessage, i_Algorithem, i_From, i_To, i_TimeFile);
+		const float* shortPathPtr = runTimeMesuare(i_InitialMessage, i_Algorithem, i_From, i_To, i_TimeFile); // calculate shortest path and write the run time into file.
 		if (shortPathPtr != nullptr)
 			cout << *shortPathPtr << endl;
 		else

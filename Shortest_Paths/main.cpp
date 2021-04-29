@@ -60,7 +60,7 @@ void main(int argc, char** argv)
 		SimpleDirectedGraph* G_Matrix = new AdjacencyMatrix;
 		int fromVertex, toVertex;
 		int* shortPathPtr;
-		ProgramOperator::MakeGraphsFromFile(argc, argv, G_List, G_Matrix,fromVertex,toVertex); // this function trunc argv[2] file for mesuaring current run time.
+		ProgramOperator::MakeGraphsFromFile(argc, argv, G_List, G_Matrix,fromVertex,toVertex); // this function also trunc the file given by argv[2] for mesuaring current run time.
 
 		/*Adjacency List*/
 		PriorityQueue<SimpleDirectedGraph::Vertex*>* Q_Array = new ArrayPriorityQueue<SimpleDirectedGraph::Vertex*>;
