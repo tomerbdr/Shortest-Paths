@@ -1,2 +1,1 @@
-פרוייקט בקורס אלגוריתמים
-תומר בינדר 206198350 קבוצה א
+Implementaion of Dijkstra and Bellman-Ford algorithems for both Adjacency Matrix and Adjacency List graphs.
